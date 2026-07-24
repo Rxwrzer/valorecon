@@ -54,6 +54,15 @@
   }
 
   const GRID = "42px 188px 150px 112px repeat(5,minmax(0,1fr))";
+
+  const statsLabel = $derived.by(() => {
+    const counts = appState.players
+      .filter(p => p.stats && !p.stats_pending)
+      .map(p => p.stats!.games);
+    if (!counts.length) return "stats loading…";
+    const max = Math.max(...counts);
+    return `stats = up to ${max} games`;
+  });
 </script>
 
 <Toast bind:this={toast} />
@@ -93,7 +102,7 @@
           <div class="hero-map">{appState.map}</div>
           <h2>{appState.phase === "pregame" ? "Agent Select" : "Live Match"}</h2>
         </div>
-        <span class="hero-note">stats = last few comp games</span>
+        <span class="hero-note">{statsLabel}</span>
       </div>
       <span class="live-badge">{appState.phase === "pregame" ? "Picking" : "Live"}</span>
     </div>
