@@ -421,53 +421,39 @@ async fn resolve_stats(
     let now = std::time::Instant::now();
     let self_puuid = creds.puuid.clone();
 
-    // Resolve own stats instantly from profile store (no rate-limit cost).
-    {
+    // Resolve own stats from profile store if available; otherwise include self
+    // in the normal per-player fetch (same STATS_MAX games, shared limiter).
+    let self_has_profile = {
         let cached = {
             let t = tracker.lock().await;
             t.stats_cache.get(&self_puuid)
                 .filter(|(ts, _)| now.duration_since(*ts) < STATS_TTL)
                 .map(|(_, s)| s.clone())
         };
-        let stats = if let Some(s) = cached {
-            s
+        if let Some(stats) = cached {
+            apply_stats(&tracker, app, &self_puuid, stats).await;
+            true
         } else {
             let season = { tracker.lock().await.content.as_ref().map(|c| c.current_season.clone()).unwrap_or_default() };
             let store = ProfileStore::open(&profile_store_dir(), &self_puuid);
             let agg = store.aggregate(&season);
             let stats = if agg.games > 0 { agg.agg } else { store.aggregate("").agg };
-            // First run: no local data — kick off a background profile pull automatically.
-            if stats.as_ref().map_or(true, |s| s.games == 0) {
-                let already_running = tracker.lock().await.pull_status.running;
-                if !already_running {
-                    {
-                        let mut t = tracker.lock().await;
-                        t.pull_status = crate::models::PullStatus {
-                            running: true,
-                            target: 0,
-                            want_max: true,
-                            ..Default::default()
-                        };
-                    }
-                    let t2 = tracker.clone();
-                    let app2 = app.clone();
-                    tauri::async_runtime::spawn(async move {
-                        crate::commands::run_profile_pull_pub(t2, app2, 0, true).await;
-                    });
-                }
-            }
-            tracker.lock().await.stats_cache.insert(self_puuid.clone(), (std::time::Instant::now(), stats.clone()));
-            stats
-        };
-        apply_stats(&tracker, app, &self_puuid, stats).await;
-    }
+            if let Some(s) = stats {
+                if s.games > 0 {
+                    tracker.lock().await.stats_cache.insert(self_puuid.clone(), (std::time::Instant::now(), Some(s.clone())));
+                    apply_stats(&tracker, app, &self_puuid, Some(s)).await;
+                    true
+                } else { false }
+            } else { false }
+        }
+    };
 
-    // Snapshot enemy/ally puuids (everyone except self).
+    // Snapshot puuids: everyone except self; include self if no profile data.
     let puuids: Vec<String> = {
         let t = tracker.lock().await;
         t.state.players.iter()
             .map(|p| p.puuid.clone())
-            .filter(|p| p != &self_puuid)
+            .filter(|p| p != &self_puuid || !self_has_profile)
             .collect()
     };
 
