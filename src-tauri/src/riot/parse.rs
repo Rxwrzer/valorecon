@@ -207,10 +207,11 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
         })
     }).unwrap_or_default();
 
-    // Damage + shot counts (head/body/leg) are NOT in player.stats — they live
-    // in roundResults[].playerStats[].damage[]. Aggregate per puuid here; this
-    // is the authoritative source for ADR and HS%.
-    let mut shot_agg: std::collections::HashMap<String, (f64, i64, i64, i64)> = std::collections::HashMap::new();
+    // Damage, shot counts, and combat score are NOT reliable in player.stats —
+    // they live in roundResults[].playerStats[]. Aggregate per puuid here; this
+    // is the authoritative source for ACS, ADR, and HS%.
+    // Tuple: (damage, headshots, bodyshots, legshots, score)
+    let mut shot_agg: std::collections::HashMap<String, (f64, i64, i64, i64, f64)> = std::collections::HashMap::new();
     if let Some(rounds) = data.get("roundResults").and_then(|r| r.as_array()) {
         for round in rounds {
             let pstats = match round.get("playerStats").and_then(|p| p.as_array()) {
@@ -222,7 +223,8 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
                     Some(s) if !s.is_empty() => s.to_string(),
                     _ => continue,
                 };
-                let e = shot_agg.entry(subject).or_insert((0.0, 0, 0, 0));
+                let e = shot_agg.entry(subject).or_insert((0.0, 0, 0, 0, 0.0));
+                e.4 += ps.get("score").and_then(|v| v.as_f64()).unwrap_or(0.0);
                 if let Some(dmgs) = ps.get("damage").and_then(|d| d.as_array()) {
                     for d in dmgs {
                         e.0 += d.get("damage").and_then(|v| v.as_f64()).unwrap_or(0.0);
@@ -246,10 +248,14 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
         let kills = stats.and_then(|s| s.get("kills")).and_then(|v| v.as_f64()).unwrap_or(0.0);
         let deaths = stats.and_then(|s| s.get("deaths")).and_then(|v| v.as_f64()).unwrap_or(0.0);
         let assists = stats.and_then(|s| s.get("assists")).and_then(|v| v.as_f64()).unwrap_or(0.0);
-        let score = stats.and_then(|s| s.get("score")).and_then(|v| v.as_f64()).unwrap_or(0.0);
-        // Damage + shots from the roundResults aggregation above. Fall back to
-        // the player-level roundDamage array for damage if roundResults is absent.
-        let agg = shot_agg.get(&puuid).copied().unwrap_or((0.0, 0, 0, 0));
+        // Score, damage, and shots all come from roundResults aggregation above —
+        // players[i].stats.score is a different (smaller) metric, not combat score.
+        let agg = shot_agg.get(&puuid).copied().unwrap_or((0.0, 0, 0, 0, 0.0));
+        let score = if agg.4 > 0.0 {
+            agg.4
+        } else {
+            stats.and_then(|s| s.get("score")).and_then(|v| v.as_f64()).unwrap_or(0.0)
+        };
         let damage = if agg.0 > 0.0 {
             agg.0
         } else {
