@@ -334,7 +334,7 @@ pub async fn save_settings(
         t.settings.poll_seconds = v.max(3);
     }
     if let Some(v) = data.get("henrik_key").and_then(|v| v.as_str()) {
-        if !v.is_empty() { t.settings.henrik_key = v.to_string(); }
+        t.settings.henrik_key = v.to_string();
     }
     if let Some(v) = data.get("profile_pull_target").and_then(|v| v.as_i64()) {
         t.settings.profile_pull_target = v as i32;
@@ -382,7 +382,9 @@ pub async fn set_always_on_top(
     let window = app.get_webview_window("main")
         .ok_or("Window not found")?;
     window.set_always_on_top(on).map_err(|e| e.to_string())?;
-    tracker.lock().await.settings.always_on_top = on;
+    let mut t = tracker.lock().await;
+    t.settings.always_on_top = on;
+    let _ = t.settings.save();
     Ok(())
 }
 
@@ -392,17 +394,18 @@ async fn run_profile_pull(tracker: Arc<Mutex<crate::tracker::Tracker>>, app: tau
     // want_max pulls until history is exhausted; otherwise stop at `count`.
     let target = if want_max { i32::MAX } else { count };
     let (puuid, creds, season, henrik_key, region, pull_source) = {
-        let t = tracker.lock().await;
-        let creds = match t.creds.clone() {
+        let creds_opt = tracker.lock().await.creds.clone();
+        let creds = match creds_opt {
             Some(c) => c,
             None => {
-                let mut t2 = tracker.lock().await;
-                t2.pull_status.running = false;
-                t2.pull_status.error = "Not connected".into();
-                t2.pull_status.done = true;
+                let mut t = tracker.lock().await;
+                t.pull_status.running = false;
+                t.pull_status.error = "Not connected".into();
+                t.pull_status.done = true;
                 return;
             }
         };
+        let t = tracker.lock().await;
         let season = t.content.as_ref().map(|c| c.current_season.clone()).unwrap_or_default();
         let key = t.settings.henrik_key.clone();
         let region = t.settings.region_override.clone();

@@ -387,9 +387,8 @@ async fn resolve_mmr(
                 out.insert(puuid.clone(), res);
             }
             Err(_) => {
-                // Reuse a prior good result if we have one; otherwise mark as
-                // still-pending so the row shows a spinner and retries next poll
-                // (rather than falsely showing "Unranked" on a failed fetch).
+                // Reuse prior result without refreshing its timestamp so it
+                // naturally expires and is retried next poll.
                 let cached = tracker.lock().await.mmr_cache.get(puuid).map(|(_, r)| r.clone());
                 out.insert(puuid.clone(), cached.unwrap_or(PlayerResolve { pending: true, ..Default::default() }));
             }

@@ -224,8 +224,8 @@ pub fn parse_stored_matches(data: &Value, _puuid: &str) -> (Vec<serde_json::Map<
         let damage = stats.get("damage").and_then(|d| d.get("made")).and_then(|v| v.as_f64()).unwrap_or(0.0);
 
         // Round counts per team → total rounds + win/loss for the queried player.
-        let red = g.get("teams").and_then(|t| t.get("red")).and_then(|v| v.as_i64()).unwrap_or(0);
-        let blue = g.get("teams").and_then(|t| t.get("blue")).and_then(|v| v.as_i64()).unwrap_or(0);
+        let red = g.get("teams").and_then(|t| t.get("red")).and_then(|t| t.get("rounds_won")).and_then(|v| v.as_i64()).unwrap_or(0);
+        let blue = g.get("teams").and_then(|t| t.get("blue")).and_then(|t| t.get("rounds_won")).and_then(|v| v.as_i64()).unwrap_or(0);
         let team = stats.get("team").and_then(|v| v.as_str()).unwrap_or("").to_lowercase();
         let won = match team.as_str() { "red" => red > blue, "blue" => blue > red, _ => false };
 
