@@ -436,6 +436,26 @@ async fn resolve_stats(
             let store = ProfileStore::open(&profile_store_dir(), &self_puuid);
             let agg = store.aggregate(&season);
             let stats = if agg.games > 0 { agg.agg } else { store.aggregate("").agg };
+            // First run: no local data — kick off a background profile pull automatically.
+            if stats.as_ref().map_or(true, |s| s.games == 0) {
+                let already_running = tracker.lock().await.pull_status.running;
+                if !already_running {
+                    {
+                        let mut t = tracker.lock().await;
+                        t.pull_status = crate::models::PullStatus {
+                            running: true,
+                            target: 0,
+                            want_max: true,
+                            ..Default::default()
+                        };
+                    }
+                    let t2 = tracker.clone();
+                    let app2 = app.clone();
+                    tauri::async_runtime::spawn(async move {
+                        crate::commands::run_profile_pull_pub(t2, app2, 0, true).await;
+                    });
+                }
+            }
             tracker.lock().await.stats_cache.insert(self_puuid.clone(), (std::time::Instant::now(), stats.clone()));
             stats
         };

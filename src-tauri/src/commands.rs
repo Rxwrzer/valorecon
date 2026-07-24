@@ -388,6 +388,10 @@ pub async fn set_always_on_top(
 
 // ── Internal: profile deep pull ───────────────────────────────────────────────
 
+pub async fn run_profile_pull_pub(tracker: Arc<Mutex<crate::tracker::Tracker>>, app: tauri::AppHandle, count: i32, want_max: bool) {
+    run_profile_pull(tracker, app, count, want_max).await;
+}
+
 async fn run_profile_pull(tracker: Arc<Mutex<crate::tracker::Tracker>>, app: tauri::AppHandle, count: i32, want_max: bool) {
     // want_max pulls until history is exhausted; otherwise stop at `count`.
     let target = if want_max { i32::MAX } else { count };
