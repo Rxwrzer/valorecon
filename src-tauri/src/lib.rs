@@ -26,6 +26,7 @@ pub fn run() {
     let tracker = Arc::new(Mutex::new(Tracker::new()));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .manage(tracker.clone())
         .invoke_handler(tauri::generate_handler![

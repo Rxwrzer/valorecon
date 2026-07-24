@@ -1,0 +1,11 @@
+{
+  "version": "0.1.0",
+  "notes": "Initial release",
+  "pub_date": "2026-07-24T00:00:00Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ09tTVZDYlJkSWxnV0svSklDVko2dUN1VENoek5Ia1lBR0lOSDNybDVYb0M4Z1M4STJ5RldZWWhObWU0bUVnQkF6VWcxM2Q0cEVtV1F4dlJvQTg3eUFJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0OTEyMzAwCWZpbGU6VmFsb1JlY29uXzAuMS4wX3g2NC1zZXR1cC5leGUKK0p1dTdXZGlxWnJ3TUphbG1wZWFVOGZSdGs1NndRelUzK2FSTVlkR0JDWnpJQndLWGhDYVQ4dm1sdmhiZGwyWHdiN2Q2R1Y3dEZRdENiZkRGWExyRGc9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.0/ValoRecon_0.1.0_x64-setup.exe"
+    }
+  }
+}

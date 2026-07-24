@@ -1,6 +1,7 @@
 <svelte:options runes={true} />
 <script lang="ts">
   import { api, type AppSettings } from "$lib/api";
+  import { check } from "@tauri-apps/plugin-updater";
 
   let settings = $state<AppSettings | null>(null);
   let keyInput = $state("");
@@ -10,6 +11,8 @@
   let liveUseHenrik = $state(false);
   let saved = $state(false);
   let saving = $state(false);
+  let updateStatus = $state<"idle" | "checking" | "available" | "uptodate" | "installing" | "error">("idle");
+  let updateVersion = $state("");
 
   async function load() {
     try {
@@ -38,6 +41,31 @@
       await load();
     } catch {}
     saving = false;
+  }
+
+  async function checkUpdate() {
+    updateStatus = "checking";
+    try {
+      const update = await check();
+      if (update?.available) {
+        updateVersion = update.version;
+        updateStatus = "available";
+      } else {
+        updateStatus = "uptodate";
+      }
+    } catch {
+      updateStatus = "error";
+    }
+  }
+
+  async function installUpdate() {
+    updateStatus = "installing";
+    try {
+      const update = await check();
+      await update?.downloadAndInstall();
+    } catch {
+      updateStatus = "error";
+    }
   }
 </script>
 
@@ -94,7 +122,22 @@
       {#if saved}<span class="ok" style="margin-left:12px">Saved.</span>{/if}
     </div>
 
-    <div class="version">ValoRecon {settings.version} · Not affiliated with Riot Games</div>
+    <div class="update-row">
+      <div class="version">ValoRecon {settings.version} · Not affiliated with Riot Games</div>
+      {#if updateStatus === "idle"}
+        <button class="ghost sm" onclick={checkUpdate}>Check for updates</button>
+      {:else if updateStatus === "checking"}
+        <span class="muted" style="font-size:12px">Checking…</span>
+      {:else if updateStatus === "uptodate"}
+        <span class="ok" style="font-size:12px">Up to date</span>
+      {:else if updateStatus === "available"}
+        <button class="primary sm" onclick={installUpdate}>Update to v{updateVersion}</button>
+      {:else if updateStatus === "installing"}
+        <span class="muted" style="font-size:12px">Downloading…</span>
+      {:else if updateStatus === "error"}
+        <span class="bad" style="font-size:12px">Check failed</span>
+      {/if}
+    </div>
   </div>
 {:else}
   <div class="hint">Loading settings…</div>
@@ -105,7 +148,8 @@
 .mhead h2 { font-size: 17px; margin: 0; font-weight: 900; letter-spacing: .4px; text-transform: uppercase; border-left: 3px solid var(--accent); padding-left: 10px; }
 .form { max-width: 460px; display: flex; flex-direction: column; gap: 15px; }
 .form label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 7px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
-.version { color: var(--dim); font-size: 11px; margin-top: 8px; }
+.update-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.version { color: var(--dim); font-size: 11px; }
 .toggle-row { display: flex; align-items: center; gap: 10px; }
 .toggle-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
 .toggle-row label { font-size: 12px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .3px; margin: 0; }
