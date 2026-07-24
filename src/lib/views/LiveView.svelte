@@ -3,7 +3,10 @@
   import { api, type AppState, type MatchPlayer } from "$lib/api";
   import RankBadge from "$lib/components/RankBadge.svelte";
   import StatCell from "$lib/components/StatCell.svelte";
-  import PartyChip from "$lib/components/PartyChip.svelte";
+  const PARTY_COLORS = ['#5b8cff','#ff9f43','#a66bff','#2dd4bf','#f472b6'];
+  function partyColor(group: number): string {
+    return group > 0 ? PARTY_COLORS[(group - 1) % PARTY_COLORS.length] : '';
+  }
   import Toast from "$lib/components/Toast.svelte";
 
   let { appState } = $props<{ appState: AppState }>();
@@ -57,8 +60,8 @@
 
   const statsLabel = $derived.by(() => {
     const counts = appState.players
-      .filter(p => p.stats && !p.stats_pending)
-      .map(p => p.stats!.games);
+      .filter((p: MatchPlayer) => p.stats && !p.stats_pending)
+      .map((p: MatchPlayer) => p.stats!.games);
     if (!counts.length) return "stats loading…";
     const max = Math.max(...counts);
     return `stats = up to ${max} games`;
@@ -135,8 +138,8 @@
       <div class="rows">
         {#each teamPlayers as p}
           <div
-            class="row {p.is_self ? 'self' : ''}"
-            style="--tier:{p.current.tier_color};--agent:{p.agent_color || p.current.tier_color};--grid:{GRID}"
+            class="row {p.is_self ? 'self' : ''} {p.party_group > 0 ? 'in-party' : ''}"
+            style="--tier:{p.current.tier_color};--agent:{p.agent_color || p.current.tier_color};--grid:{GRID};--party:{partyColor(p.party_group)}"
           >
             <!-- Agent icon -->
             <img class="agent" src={p.agent_icon} alt={p.agent_name}
@@ -158,9 +161,6 @@
                   —
                 {/if}
                 {#if p.is_self}<span class="tag">YOU</span>{/if}
-                {#if p.party_group > 0}
-                  <PartyChip group={p.party_group} confirmed={p.party_confirmed} />
-                {/if}
               </div>
               <div class="pmeta">
                 {p.agent_name || ""}
@@ -328,6 +328,10 @@
   background: linear-gradient(90deg, color-mix(in srgb, var(--agent,#4b5160) 10%, var(--panel)), var(--panel) 44%);
   border: 1px solid var(--line);
   border-left: 4px solid var(--agent, #4b5160);
+}
+.row.in-party {
+  border-left-color: var(--party);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--party) 12%, var(--panel)), var(--panel) 44%);
   border-radius: 10px;
   padding: 9px 14px;
   transition: transform .12s, border-color .15s, box-shadow .15s;
