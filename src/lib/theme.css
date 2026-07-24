@@ -1,0 +1,137 @@
+/* ValoRecon design tokens — ported from the original red/dark esports theme */
+:root {
+  --bg: #0c0d12;
+  --panel: #14161d;
+  --panel2: #191c24;
+  --panel3: #1f2430;
+  --line: #242835;
+  --line2: #33394a;
+  --text: #f2f3f6;
+  --muted: #8b90a0;
+  --dim: #5f6675;
+  --accent: #ff2f43;
+  --accent2: #ff5563;
+  --good: #43e08a;
+  --bad: #ff5a67;
+  --warn: #ffb020;
+  --blue: #4d7cff;
+  --red: #ff3b4a;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  font: 14px/1.45 "Segoe UI", -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: #2a2f3d;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4152;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Allow text selection in inputs */
+input, textarea { user-select: text; }
+
+/* Links */
+a { color: var(--accent); text-decoration: none; }
+
+/* Form elements */
+input, select {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 10px 13px;
+  font: inherit;
+  outline: none;
+  width: 100%;
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* Buttons */
+button { font: inherit; cursor: pointer; }
+
+button.primary {
+  background: var(--accent);
+  border: 0;
+  color: #fff;
+  font-weight: 900;
+  border-radius: 9px;
+  padding: 10px 18px;
+  white-space: nowrap;
+  transition: background .15s;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  box-shadow: 0 0 16px -4px var(--accent);
+}
+button.primary:hover { background: var(--accent2); }
+button.primary:disabled { opacity: .45; cursor: default; }
+
+button.ghost {
+  background: var(--panel3);
+  border: 1px solid var(--line2);
+  color: var(--text);
+  font-weight: 800;
+  border-radius: 9px;
+  padding: 9px 15px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  font-size: 12.5px;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+button.ghost:hover { border-color: var(--accent); color: #fff; }
+button.ghost:disabled { opacity: .45; cursor: default; }
+button.ghost.sm { padding: 7px 13px; font-size: 11.5px; }
+button.ghost.danger:hover { border-color: var(--bad); color: var(--bad); }
+button.ghost.warn2:hover { border-color: var(--warn); color: var(--warn); }
+
+/* Utility */
+.g { color: var(--good); }
+.b { color: var(--bad); }
+.n { color: var(--text); }
+.muted { color: var(--muted); }
+.warn2 { color: var(--warn); }
+.up { color: var(--good); }
+.down { color: var(--bad); }
+
+.hint {
+  color: var(--muted);
+  text-align: center;
+  padding: 72px 20px;
+}
+.hint .big {
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 7px;
+  font-weight: 800;
+}
+.hint .ico {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: var(--accent);
+  opacity: .9;
+}
+
+.err { color: var(--bad); font-size: 13px; margin: 8px 0; }
+.ok  { color: var(--good); font-size: 13px; margin: 8px 0; }
