@@ -14,12 +14,6 @@ A lightweight native Windows app for tracking VALORANT lobbies in real time. See
 - **Smart rate limiting** — shared budget across all API calls; Riot and HenrikDev run in parallel
 - **Always-on-top** — pin above VALORANT for quick reference
 
-## Screenshots
-
-| Live Match | Profile |
-|---|---|
-| ![Live match view showing ranks and stats for all 10 players](docs/live.png) | ![Profile view showing RR history sparkline and act stats](docs/profile.png) |
-
 ## Download
 
 Grab the latest installer from [Releases](https://github.com/Rxwrzer/valorecon/releases):
