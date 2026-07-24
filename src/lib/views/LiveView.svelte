@@ -146,7 +146,7 @@
             <div class="pl">
               <div class="pname">
                 {#if p.incognito && !p.is_self}
-                  <span class="hidden">{p.agent_name || "Hidden"}</span>
+                  <span class="hidden">{p.agent_name || "Streamer Mode"}</span>
                 {:else if p.name}
                   <!-- svelte-ignore a11y_click_events_have_key_events -->
                   <!-- svelte-ignore a11y_no_static_element_interactions -->

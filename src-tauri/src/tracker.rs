@@ -704,6 +704,20 @@ async fn build_players(
     self_puuid: &str,
     tracker: Arc<Mutex<Tracker>>,
 ) -> Vec<MatchPlayer> {
+    // Snapshot agent data once while we can await the lock — avoids try_lock
+    // races inside the sync .map() closure below.
+    let agent_map: HashMap<String, (String, String, String)> = {
+        let g = tracker.lock().await;
+        if let Some(ref c) = g.content {
+            raw.iter().map(|p| {
+                let ai = c.agent(&p.agent);
+                (p.agent.clone(), (ai.name, ai.icon, ai.color))
+            }).collect()
+        } else {
+            HashMap::new()
+        }
+    };
+
     raw.iter().map(|p| {
         let resolve = mmr_map.get(&p.puuid).cloned().unwrap_or(PlayerResolve { pending: true, ..Default::default() });
         // "Loading" only while the fetch is genuinely unresolved — a resolved
@@ -721,15 +735,9 @@ async fn build_players(
             RankInfo::default()
         };
         let peak = resolve.peak.clone();
-        let (agent_name, agent_icon, agent_color) = {
-            let guard = tracker.try_lock().ok();
-            if let Some(g) = guard {
-                if let Some(ref c) = g.content {
-                    let ai = c.agent(&p.agent);
-                    (ai.name, ai.icon, ai.color)
-                } else { (String::new(), String::new(), "#4b5160".into()) }
-            } else { (String::new(), String::new(), "#4b5160".into()) }
-        };
+        let (agent_name, agent_icon, agent_color) = agent_map.get(&p.agent)
+            .cloned()
+            .unwrap_or_else(|| (String::new(), String::new(), "#4b5160".into()));
         MatchPlayer {
             puuid: p.puuid.clone(),
             team: p.team.clone(),
