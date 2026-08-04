@@ -1,11 +1,11 @@
 {
-  "version": "0.1.1",
-  "notes": "Bug fixes and improvements",
-  "pub_date": "2026-07-24T00:00:00Z",
+  "version": "0.1.2",
+  "notes": "UI fixes and stability improvements",
+  "pub_date": "2026-08-04T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0xxY0xiWFJhSzVNK0RJMHp4a3Fad1h1d0Z2d0J3ZHFpQmRUOGJvN1AvaTRIWWlxK1BIOVN4cW44U0xwdWZRYU12S0tQb29YRVhvTzNNcVNUeHNSd2cwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0OTIyMjY2CWZpbGU6VmFsb1JlY29uXzAuMS4xX3g2NC1zZXR1cC5leGUKcHN6WUVCQTdxM0NQcGo1dTdBRjFZcUZDdHZlS2lROUFUYWVZblJ4WDVZOEltWTBLWG5uTDZMSWlveERwcnByam01WmN0R2dlTnhzQld2SXlLZTBSQ0E9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.1/ValoRecon_0.1.1_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0VjZjZ0THIzUlorbTBmUWN3RkhMZnlKSzVGSXZKZTVVM1VHR2dscXlQajljeTJFSWk2SHZnd2IxTlBEYWlkaFFtNWJoek9ndERjSXplQXprS1lncWdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODY4Mjc2CWZpbGU6VmFsb1JlY29uXzAuMS4yX3g2NC1zZXR1cC5leGUKSXZHaTI3UmErSFlQZjVsTkZsNzBpTWlsQVJheW0wUjFHTWx1Z1ZLcFFBWTBCNTBveThCeWpTbG9VOXNSMGZDbDNoRk5MOUZINVFGemNzbjQ2aDVRQlE9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.2/ValoRecon_0.1.2_x64-setup.exe"
     }
   }
 }
