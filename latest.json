@@ -1,11 +1,11 @@
 {
-  "version": "0.1.2",
-  "notes": "UI fixes and stability improvements",
+  "version": "0.1.3",
+  "notes": "Row border fix",
   "pub_date": "2026-08-04T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0VjZjZ0THIzUlorbTBmUWN3RkhMZnlKSzVGSXZKZTVVM1VHR2dscXlQajljeTJFSWk2SHZnd2IxTlBEYWlkaFFtNWJoek9ndERjSXplQXprS1lncWdFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODY4Mjc2CWZpbGU6VmFsb1JlY29uXzAuMS4yX3g2NC1zZXR1cC5leGUKSXZHaTI3UmErSFlQZjVsTkZsNzBpTWlsQVJheW0wUjFHTWx1Z1ZLcFFBWTBCNTBveThCeWpTbG9VOXNSMGZDbDNoRk5MOUZINVFGemNzbjQ2aDVRQlE9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.2/ValoRecon_0.1.2_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0oybFpyMEtmY1Q3YUU0RW9YMy9RMWh0L2F4bEJ1Z1ZGT0wzdm1oTy9YSWp3RVFCKy9mZUdZTDBJaGhNMFFBcWFVUEV3YUlyOUY4MDJmR0VqYmVOSEFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODY5NjE5CWZpbGU6VmFsb1JlY29uXzAuMS4zX3g2NC1zZXR1cC5leGUKZVFzcXdXTURtKzJ0bVdoZEtUSHR4ZTN0YWVtVU1hVzVmTHp5cm5vdjQ0aFAwcUpsNXlRVFB0MEN2V2J0YmlsRTN5aWlNc0k3VERCTDdUOGJqQkVQRGc9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.3/ValoRecon_0.1.3_x64-setup.exe"
     }
   }
 }
