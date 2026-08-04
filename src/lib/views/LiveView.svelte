@@ -328,12 +328,12 @@
   background: linear-gradient(90deg, color-mix(in srgb, var(--agent,#4b5160) 10%, var(--panel)), var(--panel) 44%);
   border: 1px solid var(--line);
   border-left: 4px solid var(--line2, #2a2d3a);
-}
-.row.in-party {
-  border-left-color: var(--party);
   border-radius: 10px;
   padding: 9px 14px;
   transition: transform .12s, border-color .15s, box-shadow .15s;
+}
+.row.in-party {
+  border-left-color: var(--party);
 }
 .row:hover {
   transform: translateX(2px);
