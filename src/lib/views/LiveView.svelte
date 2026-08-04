@@ -327,7 +327,7 @@
   position: relative;
   background: linear-gradient(90deg, color-mix(in srgb, var(--agent,#4b5160) 10%, var(--panel)), var(--panel) 44%);
   border: 1px solid var(--line);
-  border-left: 4px solid var(--agent, #4b5160);
+  border-left: 4px solid transparent;
 }
 .row.in-party {
   border-left-color: var(--party);
