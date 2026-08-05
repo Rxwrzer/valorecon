@@ -218,19 +218,10 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
     // stats.roundsPlayed which only counts rounds the player was alive (~half).
     // Tuple: (damage, headshots, bodyshots, legshots, combat_score)
     let mut shot_agg: std::collections::HashMap<String, (f64, i64, i64, i64, f64)> = std::collections::HashMap::new();
-    // Most reliable source for total match rounds: teams[i].roundsPlayed.
-    // roundResults.len() is unreliable — some API responses return 0 or 1 entries.
-    let total_match_rounds = {
-        let from_teams = data.get("teams").and_then(|t| t.as_array()).and_then(|t| {
-            t.iter().find_map(|team| team.get("roundsPlayed").and_then(|v| v.as_f64()))
-        }).unwrap_or(0.0);
-        if from_teams >= 10.0 { from_teams } else {
-            // fallback: roundResults length, but only if it looks like real data
-            let rr_len = data.get("roundResults").and_then(|r| r.as_array()).map(|r| r.len() as f64).unwrap_or(0.0);
-            if rr_len >= 10.0 { rr_len } else { 0.0 }
-        }
-    };
-    tracing::debug!("[parse] total_match_rounds={}", total_match_rounds);
+    // Store rounds=0 so aggregate_stats always uses the n*24 fallback.
+    // All Riot local API sources (roundResults.len, teams.roundsPlayed) return
+    // wrong values (1 instead of the real round count), so we don't use them.
+    let total_match_rounds = 0.0_f64;
     if let Some(rounds) = data.get("roundResults").and_then(|r| r.as_array()) {
         for round in rounds {
             let pstats = match round.get("playerStats").and_then(|p| p.as_array()) {
@@ -271,8 +262,6 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
         // players[i].stats.score is a different (smaller) metric, not combat score.
         let agg = shot_agg.get(&puuid).copied().unwrap_or((0.0, 0, 0, 0, 0.0));
         let stats_score = stats.and_then(|s| s.get("score")).and_then(|v| v.as_f64()).unwrap_or(0.0);
-        let rounds_played = stats.and_then(|s| s.get("roundsPlayed")).and_then(|v| v.as_f64()).unwrap_or(0.0);
-        tracing::debug!("[parse] puuid={} rr_score={} stats_score={} rounds_played={} total_rounds={}", &puuid[..8.min(puuid.len())], agg.4, stats_score, rounds_played, total_match_rounds);
         // roundResults combat score is the correct ACS source; fall back to stats.score only
         // if roundResults had no data for this player.
         let score = if agg.4 > 0.0 { agg.4 } else { stats_score };

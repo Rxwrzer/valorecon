@@ -1,11 +1,11 @@
-{
-  "version": "0.1.9",
-  "notes": "Fix ACS/ADR/WR — use teams.roundsPlayed as authoritative match rounds; restore original score source; fix party color flickering; fix empty-name rows showing agent name",
-  "pub_date": "2026-08-05T00:00:00Z",
-  "platforms": {
-    "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0RYcmhGV0U1TzNTOXprVXRkWVhpbG01YUdnMXNPWDgva0NTeGs0V2N0RXAzd3VydlRndzd0Qi9QakRHenEranUrWHZrMk1zdnQ3b3lhcmhpUjFSR3dZPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1OTU2NTA2CWZpbGU6VmFsb1JlY29uXzAuMS45X3g2NC1zZXR1cC5leGUKTGdQSG5rRmV5WnM3VWdBajlyRWFZR3hDQlFES3JlbEZxVnNJQUNQdWhiaFN1TjAxN3JtcXFMcXBzZ0FjU3ppVTRnWm1PUEFMSW1GS3JNZkVlbStiREE9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.9/ValoRecon_0.1.9_x64-setup.exe"
-    }
-  }
+﻿{
+    "platforms":  {
+                      "windows-x86_64":  {
+                                             "signature":  "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0tMNHpZM3JmVWVWdW01UlV4TVd1SmF4bTMrakh6bkFIWXh5RWk2M0VpU1B2RlNLMnYrNjVIVWlOakp1RTZJcVJMVEZMS05WV2MzTExnSGluSHppM3dNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1OTU3NjYyCWZpbGU6VmFsb1JlY29uXzAuMi4wX3g2NC1zZXR1cC5leGUKYmU2V0t0aHJUV1JWNWRRUVF5enNFWWpKM0NNWkdRWnI4RWVQMXFXUDA0WkxaeitXSG1KL284dHRqRUJzRC9ndFViT3IrWm9rNmhKQ2pDZzVCaXU2QVE9PQo=",
+                                             "url":  "https://github.com/Rxwrzer/valorecon/releases/download/v0.2.0/ValoRecon_0.2.0_x64-setup.exe"
+                                         }
+                  },
+    "pub_date":  "2026-08-05T00:00:00Z",
+    "version":  "0.2.0",
+    "notes":  "Fix ACS/ADR for live match (always use n*24 rounds fallback); fix Lookup ACS and Win Rate (robust team parsing fallbacks)"
 }

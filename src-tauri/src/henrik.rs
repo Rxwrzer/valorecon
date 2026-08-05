@@ -156,27 +156,33 @@ pub fn parse_matches(data: &Value, name: &str, tag: &str) -> Vec<serde_json::Map
 
         let won = me.get("won").and_then(|v| v.as_bool())
             .or_else(|| {
-                // Derive from team result if `won` isn't present on the record.
                 let team = me.get("stats").and_then(|s| s.get("team"))
                     .or_else(|| me.get("team"))
                     .and_then(|v| v.as_str())?
                     .to_lowercase();
                 let teams = g.get("teams")?;
-                let blue = teams.get("blue").and_then(|b| b.get("has_won")).and_then(|v| v.as_bool());
-                let red = teams.get("red").and_then(|r| r.get("has_won")).and_then(|v| v.as_bool());
-                match team.as_str() {
-                    "blue" => blue,
-                    "red" => red,
-                    _ => None,
-                }
+                let my_t = teams.get(&team)?;
+                // Try explicit has_won flag first.
+                if let Some(b) = my_t.get("has_won").and_then(|v| v.as_bool()) { return Some(b); }
+                // Fallback: compare rounds_won between teams.
+                let other = if team == "red" { "blue" } else { "red" };
+                let my_rw = my_t.get("rounds_won").and_then(|v| v.as_i64())?;
+                let other_rw = teams.get(other).and_then(|t| t.get("rounds_won")).and_then(|v| v.as_i64())?;
+                Some(my_rw > other_rw)
             });
 
         // Combat score + rounds played, for an ACS estimate on the client.
         let score = stats.get("score").and_then(|v| v.as_i64()).unwrap_or(0);
+        let team_lower = stats.get("team").and_then(|v| v.as_str()).unwrap_or("").to_lowercase();
         let rounds = g.get("teams").and_then(|t| {
             let r = t.get("red").and_then(|x| x.get("rounds_won")).and_then(|v| v.as_i64());
             let b = t.get("blue").and_then(|x| x.get("rounds_won")).and_then(|v| v.as_i64());
-            match (r, b) { (Some(r), Some(b)) => Some(r + b), _ => None }
+            if let (Some(r), Some(b)) = (r, b) { return Some(r + b); }
+            // Fallback: one team's rounds_won + rounds_lost = total rounds
+            let my_team = t.get(&team_lower)?;
+            let rw = my_team.get("rounds_won").and_then(|v| v.as_i64())?;
+            let rl = my_team.get("rounds_lost").and_then(|v| v.as_i64())?;
+            Some(rw + rl)
         }).or_else(|| g.get("metadata").and_then(|m| m.get("rounds_played")).and_then(|v| v.as_i64()))
           .unwrap_or(0);
 
