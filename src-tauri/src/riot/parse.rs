@@ -198,13 +198,17 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
     };
     let teams = data.get("teams").and_then(|t| t.as_array());
     let winning_team = teams.and_then(|t| {
-        t.iter().find_map(|team| {
+        // Primary: explicit won=true flag
+        let by_flag = t.iter().find_map(|team| {
             if team.get("won").and_then(|v| v.as_bool()).unwrap_or(false) {
                 team.get("teamId").and_then(|v| v.as_str()).map(|s| s.to_string())
-            } else {
-                None
-            }
-        })
+            } else { None }
+        });
+        if by_flag.is_some() { return by_flag; }
+        // Fallback: team with most roundsWon
+        t.iter()
+            .max_by_key(|team| team.get("roundsWon").and_then(|v| v.as_i64()).unwrap_or(0))
+            .and_then(|team| team.get("teamId").and_then(|v| v.as_str()).map(|s| s.to_string()))
     }).unwrap_or_default();
 
     // ACS source: roundResults[i].playerStats[j].score summed across all rounds.
@@ -214,7 +218,19 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
     // stats.roundsPlayed which only counts rounds the player was alive (~half).
     // Tuple: (damage, headshots, bodyshots, legshots, combat_score)
     let mut shot_agg: std::collections::HashMap<String, (f64, i64, i64, i64, f64)> = std::collections::HashMap::new();
-    let total_match_rounds = data.get("roundResults").and_then(|r| r.as_array()).map(|r| r.len()).unwrap_or(0) as f64;
+    // Most reliable source for total match rounds: teams[i].roundsPlayed.
+    // roundResults.len() is unreliable — some API responses return 0 or 1 entries.
+    let total_match_rounds = {
+        let from_teams = data.get("teams").and_then(|t| t.as_array()).and_then(|t| {
+            t.iter().find_map(|team| team.get("roundsPlayed").and_then(|v| v.as_f64()))
+        }).unwrap_or(0.0);
+        if from_teams >= 10.0 { from_teams } else {
+            // fallback: roundResults length, but only if it looks like real data
+            let rr_len = data.get("roundResults").and_then(|r| r.as_array()).map(|r| r.len() as f64).unwrap_or(0.0);
+            if rr_len >= 10.0 { rr_len } else { 0.0 }
+        }
+    };
+    tracing::debug!("[parse] total_match_rounds={}", total_match_rounds);
     if let Some(rounds) = data.get("roundResults").and_then(|r| r.as_array()) {
         for round in rounds {
             let pstats = match round.get("playerStats").and_then(|p| p.as_array()) {
@@ -254,11 +270,12 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
         // Score, damage, and shots all come from roundResults aggregation above —
         // players[i].stats.score is a different (smaller) metric, not combat score.
         let agg = shot_agg.get(&puuid).copied().unwrap_or((0.0, 0, 0, 0, 0.0));
+        let stats_score = stats.and_then(|s| s.get("score")).and_then(|v| v.as_f64()).unwrap_or(0.0);
+        let rounds_played = stats.and_then(|s| s.get("roundsPlayed")).and_then(|v| v.as_f64()).unwrap_or(0.0);
+        tracing::debug!("[parse] puuid={} rr_score={} stats_score={} rounds_played={} total_rounds={}", &puuid[..8.min(puuid.len())], agg.4, stats_score, rounds_played, total_match_rounds);
         // roundResults combat score is the correct ACS source; fall back to stats.score only
         // if roundResults had no data for this player.
-        let score = if agg.4 > 0.0 { agg.4 } else {
-            stats.and_then(|s| s.get("score")).and_then(|v| v.as_f64()).unwrap_or(0.0)
-        };
+        let score = if agg.4 > 0.0 { agg.4 } else { stats_score };
         let damage = if agg.0 > 0.0 {
             agg.0
         } else {

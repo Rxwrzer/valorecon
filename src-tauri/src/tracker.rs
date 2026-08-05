@@ -646,9 +646,16 @@ fn detect_parties_in_place(
     }
     if confirmed.is_empty() { return; }
 
-    // Assign sequential group numbers, largest groups first for stable ordering.
+    // Assign sequential group numbers, largest groups first; break ties by
+    // smallest puuid so ordering is deterministic across polls.
     let mut groups: Vec<Vec<String>> = confirmed.into_values().collect();
-    groups.sort_by(|a, b| b.len().cmp(&a.len()));
+    groups.sort_by(|a, b| {
+        b.len().cmp(&a.len()).then_with(|| {
+            let a_min = a.iter().min().map(|s| s.as_str()).unwrap_or("");
+            let b_min = b.iter().min().map(|s| s.as_str()).unwrap_or("");
+            a_min.cmp(b_min)
+        })
+    });
     let mut puuid_to_group: HashMap<String, i32> = HashMap::new();
     for (i, group) in groups.into_iter().enumerate() {
         for puuid in group {

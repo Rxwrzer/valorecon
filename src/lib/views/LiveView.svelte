@@ -166,7 +166,7 @@
                     {p.name}
                   </span>
                 {:else}
-                  —
+                  <span class="hidden">{p.agent_name || "—"}</span>
                 {/if}
                 {#if p.is_self}<span class="tag">YOU</span>{/if}
               </div>
