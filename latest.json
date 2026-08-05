@@ -1,11 +1,11 @@
 {
-  "version": "0.1.6",
-  "notes": "Fix ACS/ADR inflated for some players (wrong score source from roundResults)",
+  "version": "0.1.7",
+  "notes": "Fix ACS/ADR divisor (total match rounds, not player rounds alive); add version badge bottom-right",
   "pub_date": "2026-08-05T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0tNT3hxYS9xZkVUSEVOSlFLd2xOLzRYSjZuZmZTdGdNa3c0R0pybzV1TzFPVy94QlJFS3dEakU3ZU5VRnU1K1pSWTFkK3YxWCthby9ITXZ6WUh4UGdvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1OTMwMzQ5CWZpbGU6VmFsb1JlY29uXzAuMS42X3g2NC1zZXR1cC5leGUKZHpOUGQybFVoOEQ0UDA0LzZLYklwb2lVbW45UFU3NEc1L3g4MmM0ZTBadk9oNGRYTXpMVmdYYnp6a2pFcXpKdUhyRy9laW81MXk0U0NBWUFtTEQzRHc9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.6/ValoRecon_0.1.6_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0hyZUNEUlR3Skp5Y0liVXJ6d2k1RGVaSFpNNDBmbWYrd09XNnIvOFFkeWJMTVJYZjVJRzhsVU9vNUZpYi9UN1VyeDV3L21xVlVWbFdOdk80NGI3L2dFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1OTMzMDgyCWZpbGU6VmFsb1JlY29uXzAuMS43X3g2NC1zZXR1cC5leGUKUXpxbDVpelovdzBMS0o0M2VLNGd2TFRxeWJhSmZJUEV5M05ubGh3WGVxaC9OQ0pyNGVad1hoUG96enRIOEFTMGdOTXFSYkFGcnUwUUljeXlJZUFVQ2c9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.7/ValoRecon_0.1.7_x64-setup.exe"
     }
   }
 }

@@ -211,8 +211,11 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
     // Combat score (for ACS) comes from players[i].stats.score — that IS the
     // total combat score tracker.gg uses. roundResults[i].playerStats[i].score
     // is an internal economic/placement score, NOT combat score.
+    // ACS divisor = total rounds in the match (roundResults.len()), NOT
+    // stats.roundsPlayed which only counts rounds the player was alive.
     // Tuple: (damage, headshots, bodyshots, legshots)
     let mut shot_agg: std::collections::HashMap<String, (f64, i64, i64, i64)> = std::collections::HashMap::new();
+    let total_match_rounds = data.get("roundResults").and_then(|r| r.as_array()).map(|r| r.len()).unwrap_or(0) as f64;
     if let Some(rounds) = data.get("roundResults").and_then(|r| r.as_array()) {
         for round in rounds {
             let pstats = match round.get("playerStats").and_then(|p| p.as_array()) {
@@ -267,10 +270,11 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
         let ls = agg.3 as i32;
         let party_id = p.get("partyId").and_then(|v| v.as_str()).unwrap_or("").to_string();
         let agent = p.get("characterId").and_then(|v| v.as_str()).unwrap_or("").to_string();
-        let rounds = stats.and_then(|s| s.get("roundsPlayed")).and_then(|v| v.as_f64()).unwrap_or(0.0);
+            // Use total match rounds (roundResults.len()) not stats.roundsPlayed —
+        // roundsPlayed counts rounds the player was alive, not total rounds in the match.
         out.insert(puuid, serde_json::json!({
             "kills": kills, "deaths": deaths, "assists": assists,
-            "score": score, "damage": damage, "rounds": rounds,
+            "score": score, "damage": damage, "rounds": total_match_rounds,
             "headshots": hs, "bodyshots": bs, "legshots": ls,
             "won": won, "party": party_id, "agent": agent,
         }));

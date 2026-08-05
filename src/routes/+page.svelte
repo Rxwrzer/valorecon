@@ -2,6 +2,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { api, onStateUpdate, type AppState } from "$lib/api";
+  import { getVersion } from "@tauri-apps/api/app";
 
   import LiveView from "$lib/views/LiveView.svelte";
   import ProfileView from "$lib/views/ProfileView.svelte";
@@ -24,6 +25,7 @@
     updated: 0,
   });
   let alwaysOnTop = $state(false);
+  let appVersion = $state("");
 
   let unlisten: (() => void) | null = null;
   let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -43,6 +45,8 @@
       const s = await api.getSettings();
       alwaysOnTop = s.always_on_top;
     } catch {}
+
+    try { appVersion = await getVersion(); } catch {}
   });
 
   onDestroy(() => {
@@ -115,6 +119,10 @@
       </div>
     </div>
   </header>
+
+  {#if appVersion}
+    <div class="version-badge">v{appVersion}</div>
+  {/if}
 
   <main>
     <div class="view" class:active={activeTab === "live"}>
@@ -265,6 +273,18 @@ nav button.active {
   box-shadow: 0 0 10px 1px color-mix(in srgb, var(--warn) 60%, transparent);
 }
 .dot.off { background: #4b5160; }
+
+.version-badge {
+  position: fixed;
+  bottom: 7px;
+  right: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--dim);
+  letter-spacing: .4px;
+  pointer-events: none;
+  z-index: 999;
+}
 
 main {
   flex: 1;
