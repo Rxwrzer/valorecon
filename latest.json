@@ -1,11 +1,11 @@
 {
-  "version": "0.1.7",
-  "notes": "Fix ACS/ADR divisor (total match rounds, not player rounds alive); add version badge bottom-right",
+  "version": "0.1.8",
+  "notes": "Fix ACS/ADR — use roundResults combat score with total match rounds as divisor",
   "pub_date": "2026-08-05T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0hyZUNEUlR3Skp5Y0liVXJ6d2k1RGVaSFpNNDBmbWYrd09XNnIvOFFkeWJMTVJYZjVJRzhsVU9vNUZpYi9UN1VyeDV3L21xVlVWbFdOdk80NGI3L2dFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1OTMzMDgyCWZpbGU6VmFsb1JlY29uXzAuMS43X3g2NC1zZXR1cC5leGUKUXpxbDVpelovdzBMS0o0M2VLNGd2TFRxeWJhSmZJUEV5M05ubGh3WGVxaC9OQ0pyNGVad1hoUG96enRIOEFTMGdOTXFSYkFGcnUwUUljeXlJZUFVQ2c9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.7/ValoRecon_0.1.7_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0tMN2g5bktZOHJkUzY2MUdvb0ppZFdHVVE3SnNuQSsxU2FIOVE5SWlIUDkrUFFJSDNNVVhYcWlnNDVLRWVhRTdkZThaRm5ESXVNTTJkSFZqQ3VSZWdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1OTQ0NjIyCWZpbGU6VmFsb1JlY29uXzAuMS44X3g2NC1zZXR1cC5leGUKdmYySzJFTDVjSy91bTRubkd0eWMxT2x4TkQ5WjZpMUhRaUpCbXM2eEZGbkZ3RERlRWlsUkJ6VjNUMTZJMStYN3dVY2tHQi9sbHk4NmdDRlRwaHQ3QkE9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.8/ValoRecon_0.1.8_x64-setup.exe"
     }
   }
 }
