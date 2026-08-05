@@ -4,8 +4,16 @@
   import RankBadge from "$lib/components/RankBadge.svelte";
   import StatCell from "$lib/components/StatCell.svelte";
   const PARTY_COLORS = ['#5b8cff','#ff9f43','#a66bff','#2dd4bf','#f472b6'];
+
+  const selfPartyGroup = $derived.by(() => {
+    const self = appState.players.find((p: MatchPlayer) => p.is_self);
+    return self?.party_group ?? 0;
+  });
+
   function partyColor(group: number): string {
-    return group > 0 ? PARTY_COLORS[(group - 1) % PARTY_COLORS.length] : '';
+    if (group <= 0) return '';
+    if (selfPartyGroup > 0 && group === selfPartyGroup) return 'var(--accent)';
+    return PARTY_COLORS[(group - 1) % PARTY_COLORS.length];
   }
   import Toast from "$lib/components/Toast.svelte";
 
@@ -149,7 +157,7 @@
             <div class="pl">
               <div class="pname">
                 {#if p.incognito && !p.is_self}
-                  <span class="hidden">{p.agent_name || "Streamer Mode"}</span>
+                  <span class="hidden">{p.agent_name || "—"}</span>
                 {:else if p.name}
                   <!-- svelte-ignore a11y_click_events_have_key_events -->
                   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -337,7 +345,9 @@
 }
 .row:hover {
   transform: translateX(2px);
-  border-color: color-mix(in srgb, var(--agent) 45%, var(--line2));
+  border-top-color: color-mix(in srgb, var(--agent) 45%, var(--line2));
+  border-right-color: color-mix(in srgb, var(--agent) 45%, var(--line2));
+  border-bottom-color: color-mix(in srgb, var(--agent) 45%, var(--line2));
 }
 .row.self {
   background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 18%, var(--panel)), var(--panel) 50%);

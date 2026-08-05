@@ -1,11 +1,11 @@
 {
-  "version": "0.1.4",
-  "notes": "All player rows now uniform boxes; solo rows have gray left bar, party rows have colored left bar",
-  "pub_date": "2026-08-04T00:00:00Z",
+  "version": "0.1.5",
+  "notes": "Party color stays on hover; streamer rows show agent name; self party members highlighted in red",
+  "pub_date": "2026-08-05T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0pPWmY0SDh1UG5GajFpTDdQNnZtTjRBUTl2ZUVHK2FwQnNrVVN2N0JWWkpEK2M3SnExaC9iRnUwWm05enZudk5xSmNqdmVJVnJFOVVkY0w2UXNYcFEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODcwNTQ5CWZpbGU6VmFsb1JlY29uXzAuMS40X3g2NC1zZXR1cC5leGUKeFJaQ0FVNm5PQkhLTXpkaUVJNE13ZitwRjBaSnJ6TGhXclJ1dHRreEdxdzJUbFpvRTZGUG9UTzMzL3hOUnVUYWNwV0dUb0dMd3VCMXQxVlp2RUJCRFE9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.4/ValoRecon_0.1.4_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ1BraGxpcjYwa1pPYWZneVRoR01mOU9GRnljNSsySTJNZkRQc21jWkJWRWdTODl2ME9NMHg4d2cxaVBlcGx5M3E3TEEvTjVvUXM4cldndmVUcktIMEE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1OTI5NDMyCWZpbGU6VmFsb1JlY29uXzAuMS41X3g2NC1zZXR1cC5leGUKdDNjTm9LeFRTQk1wMkp1M1hmcStLOVlmaVFRL2xrODhpVWRtbVU3VEVIQ2QvQzFyVmpYL0I3c2xIODVkcmJNWXdKKy8yYllzM3MxTUo1N29TcDh5REE9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.1.5/ValoRecon_0.1.5_x64-setup.exe"
     }
   }
 }
