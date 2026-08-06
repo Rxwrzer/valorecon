@@ -282,7 +282,28 @@ pub async fn lookup(
     };
 
     let mmr = henrik.mmr(&effective_region, &name, &tag).await;
-    let mmr_parsed = mmr.ok().map(|m| parse_mmr(&m));
+    let mut mmr_parsed = mmr.ok().map(|m| parse_mmr(&m));
+
+    // Enrich mmr with tier colors/icons from content so the Lookup hero card can
+    // render a rank shield (same resolution the profile command uses).
+    if let Some(ref mut m) = mmr_parsed {
+        let cur_tier = m.get("current_tier").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
+        let peak_tier = m.get("peak_tier").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
+        let (cc, ci, pc, pi) = {
+            let t = tracker.lock().await;
+            if let Some(ref c) = t.content {
+                let ct = c.tier(cur_tier);
+                let pt = c.tier(peak_tier);
+                (ct.color, ct.icon, pt.color, pt.icon)
+            } else {
+                ("#8b90a0".to_string(), String::new(), "#8b90a0".to_string(), String::new())
+            }
+        };
+        m.insert("current_tier_color".into(), cc.into());
+        m.insert("current_tier_icon".into(), ci.into());
+        m.insert("peak_tier_color".into(), pc.into());
+        m.insert("peak_tier_icon".into(), pi.into());
+    }
 
     let matches = henrik.matches(&effective_region, &name, &tag).await.ok()
         .map(|m| parse_matches(&m, &name, &tag))

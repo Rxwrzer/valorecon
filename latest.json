@@ -1,11 +1,11 @@
 {
-  "version": "0.2.1",
-  "notes": "Fix Lookup ACS, Win Rate, and agent names (case-insensitive team parsing)",
+  "version": "0.2.2",
+  "notes": "Fix Lookup ACS/Win Rate (integer teams parsing); redesign Lookup view tracker.gg-style: player-card avatar, rank shields, RR bar, form pips, ACS sparkline, rich win/loss match rows with round scores",
   "pub_date": "2026-08-06T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0Fkc0JJc0xiS2JvRE1LcUxMcUVFN0RtTXlBYjE5b3JvWkx0VHZtdDVnSndmOW1xNGVkNTU0b0NVMFVZR3hKeDRTYkE2czFPNzFNRXE5SkRIZ1o4VUFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MDI0NDM2CWZpbGU6VmFsb1JlY29uXzAuMi4xX3g2NC1zZXR1cC5leGUKZi9XRFRYZStRcERhYUgyQ2x4TTNsa3RibkNiQlYvdG1HU1Nha3doT1ZUd20vbk92S282Q0xNNlozcTQ5c21rSmFqUytrNFY3bG1MQ1lzQUxxZUNDQUE9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.2.1/ValoRecon_0.2.1_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0pJRVhEaUs5NC9TQVFzM2hOc1FKY1hma1JOZTZEbWtLZEZPVjdNTXJ0QUVzZmh3ZXpDOWJZMXFIVUNVQXdXU2xiYW9GUldURkx3bTNTZmcwUVIrVFEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MDMxNzc5CWZpbGU6VmFsb1JlY29uXzAuMi4yX3g2NC1zZXR1cC5leGUKY25EVGUrNFUxKzRIVmNPNFNRQlliVkZRK1dmcGZSeHRTODVtSmlwNk1HUFlNd1UyWEVqUXZLR3o2T25ZalRRT1hSSkl1dkg2UHQ0aWFuVFhZYndmRFE9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.2.2/ValoRecon_0.2.2_x64-setup.exe"
     }
   }
 }

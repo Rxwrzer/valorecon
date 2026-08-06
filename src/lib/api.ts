@@ -119,11 +119,17 @@ export interface PullStatus {
 }
 
 export interface LookupResult {
-  account?: { name: string; tag: string; region: string; level: number };
+  account?: { name: string; tag: string; region: string; level: number; card?: string | null };
   mmr?: {
     current_tier_name: string;
     current_rr: number;
+    current_tier?: number;
+    current_tier_color?: string;
+    current_tier_icon?: string;
     peak_tier_name: string;
+    peak_tier?: number;
+    peak_tier_color?: string;
+    peak_tier_icon?: string;
     peak_season: string;
   };
   matches?: Array<{
@@ -136,6 +142,9 @@ export interface LookupResult {
     hs: number;
     score: number;
     rounds: number;
+    my_rounds: number;
+    enemy_rounds: number;
+    damage: number;
     won: boolean | null;
   }>;
   error?: string;

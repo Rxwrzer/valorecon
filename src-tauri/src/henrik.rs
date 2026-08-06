@@ -107,6 +107,16 @@ pub fn parse_account(data: &Value) -> Option<serde_json::Map<String, Value>> {
     m.insert("tag".into(), d["tag"].clone());
     m.insert("region".into(), d["region"].clone());
     m.insert("level".into(), d["account_level"].clone());
+    // Player card art for the profile avatar. v1 account returns
+    // card: { small, large, wide, id } (full URLs); some shapes give a bare id.
+    let card = d.get("card");
+    let card_url = card
+        .and_then(|c| c.get("large").or_else(|| c.get("small")).or_else(|| c.get("wide")))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .or_else(|| card.and_then(|v| v.as_str())
+            .map(|id| format!("https://media.valorant-api.com/playercards/{id}/largeart.png")));
+    m.insert("card".into(), card_url.map(Value::from).unwrap_or(Value::Null));
     Some(m)
 }
 
@@ -117,6 +127,9 @@ pub fn parse_mmr(data: &Value) -> serde_json::Map<String, Value> {
     let mut m = serde_json::Map::new();
     m.insert("current_tier_name".into(), cur["currenttierpatched"].clone());
     m.insert("current_rr".into(), cur["ranking_in_tier"].clone());
+    // Numeric tier ids let the caller resolve tier color/icon from content.
+    m.insert("current_tier".into(), cur["currenttier"].clone());
+    m.insert("peak_tier".into(), d["highest_rank"]["tier"].clone());
     m.insert("peak_tier_name".into(),
         d["highest_rank"]["patched_tier"].clone());
     m.insert("peak_season".into(),
@@ -166,29 +179,36 @@ pub fn parse_matches(data: &Value, name: &str, tag: &str) -> Vec<serde_json::Map
                 .find(|(k, _)| k.to_lowercase() == lo)
                 .map(|(_, v)| v.clone())
         }
+        // A team's round count. The lifetime/stored endpoint returns teams as
+        // integers: {"red": 13, "blue": 5}. Match-detail nests {rounds_won: 13}.
+        // Handle both.
+        fn team_rounds(teams: &Value, name: &str) -> Option<i64> {
+            let v = ci_get(teams, name)?;
+            v.as_i64().or_else(|| v.get("rounds_won").and_then(|x| x.as_i64()))
+        }
 
-        let won = me.get("won").and_then(|v| v.as_bool())
-            .or_else(|| {
-                let teams = g.get("teams")?;
-                let my_t = ci_get(teams, &team_raw)?;
-                if let Some(b) = my_t.get("has_won").and_then(|v| v.as_bool()) { return Some(b); }
-                let other = if team_raw == "red" { "blue" } else { "red" };
-                let my_rw = my_t.get("rounds_won").and_then(|v| v.as_i64())?;
-                let other_rw = ci_get(teams, other).and_then(|t| t.get("rounds_won").and_then(|v| v.as_i64()))?;
-                Some(my_rw > other_rw)
-            });
+        let other_raw = if team_raw == "red" { "blue" } else { "red" };
+        let my_rounds = g.get("teams").and_then(|t| team_rounds(t, &team_raw));
+        let enemy_rounds = g.get("teams").and_then(|t| team_rounds(t, other_raw));
 
         let score = stats.get("score").and_then(|v| v.as_i64()).unwrap_or(0);
-        let rounds = g.get("teams").and_then(|t| {
-            let r = ci_get(t, "red").and_then(|x| x.get("rounds_won").and_then(|v| v.as_i64()));
-            let b = ci_get(t, "blue").and_then(|x| x.get("rounds_won").and_then(|v| v.as_i64()));
-            if let (Some(r), Some(b)) = (r, b) { return Some(r + b); }
-            let my_team = ci_get(t, &team_raw)?;
-            let rw = my_team.get("rounds_won").and_then(|v| v.as_i64())?;
-            let rl = my_team.get("rounds_lost").and_then(|v| v.as_i64())?;
-            Some(rw + rl)
-        }).or_else(|| g.get("metadata").and_then(|m| m.get("rounds_played")).and_then(|v| v.as_i64()))
-          .unwrap_or(0);
+        let rounds = match (my_rounds, enemy_rounds) {
+            (Some(a), Some(b)) => a + b,
+            _ => g.get("metadata").and_then(|m| m.get("rounds_played"))
+                .and_then(|v| v.as_i64()).unwrap_or(0),
+        };
+        let won = me.get("won").and_then(|v| v.as_bool())
+            .or_else(|| {
+                // Explicit has_won flag on my team object, if the endpoint provides it.
+                if let Some(b) = g.get("teams").and_then(|t| ci_get(t, &team_raw))
+                    .and_then(|mt| mt.get("has_won").and_then(|v| v.as_bool())) {
+                    return Some(b);
+                }
+                match (my_rounds, enemy_rounds) {
+                    (Some(a), Some(b)) => Some(a > b),
+                    _ => None,
+                }
+            });
 
         let map = g.get("meta").and_then(|m| m.get("map"))
             .and_then(|m| m.get("name")).and_then(|v| v.as_str())
@@ -205,8 +225,14 @@ pub fn parse_matches(data: &Value, name: &str, tag: &str) -> Vec<serde_json::Map
         row.insert("assists".into(), assists.into());
         row.insert("kd".into(), kd.into());
         row.insert("hs".into(), hs_pct.into());
+        let damage = stats.get("damage").and_then(|d| d.get("made")).and_then(|v| v.as_f64())
+            .or_else(|| stats.get("damage").and_then(|v| v.as_f64()))
+            .unwrap_or(0.0);
         row.insert("score".into(), score.into());
         row.insert("rounds".into(), rounds.into());
+        row.insert("my_rounds".into(), my_rounds.unwrap_or(0).into());
+        row.insert("enemy_rounds".into(), enemy_rounds.unwrap_or(0).into());
+        row.insert("damage".into(), damage.into());
         if let Some(w) = won { row.insert("won".into(), w.into()); }
         Some(row)
     }).collect()
@@ -263,4 +289,62 @@ pub fn parse_stored_matches(data: &Value, _puuid: &str) -> (Vec<serde_json::Map<
         Some(row)
     }).collect();
     (games, after)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn parse_matches_integer_teams() {
+        // Lifetime/stored endpoint shape: teams are integer round counts.
+        let data = json!({
+            "data": [{
+                "meta": { "id": "m1", "map": { "name": "Split" } },
+                "stats": {
+                    "team": "Red",
+                    "score": 6000,
+                    "kills": 20, "deaths": 15, "assists": 5,
+                    "character": { "name": "Jett" },
+                    "shots": { "head": 20, "body": 60, "leg": 20 }
+                },
+                "teams": { "red": 13, "blue": 11 }
+            }]
+        });
+        let rows = parse_matches(&data, "Someone", "0000");
+        assert_eq!(rows.len(), 1);
+        let r = &rows[0];
+        assert_eq!(r["rounds"].as_i64(), Some(24));
+        assert_eq!(r["my_rounds"].as_i64(), Some(13));
+        assert_eq!(r["enemy_rounds"].as_i64(), Some(11));
+        assert_eq!(r["won"].as_bool(), Some(true));
+        assert_eq!(r["agent"].as_str(), Some("Jett"));
+    }
+
+    #[test]
+    fn parse_matches_nested_teams() {
+        // Match-detail shape: teams nest rounds_won.
+        let data = json!({
+            "data": [{
+                "meta": { "id": "m2", "map": { "name": "Ascent" } },
+                "stats": {
+                    "team": "Blue",
+                    "score": 3000,
+                    "kills": 10, "deaths": 18, "assists": 4,
+                    "character": { "name": "Sova" },
+                    "shots": { "head": 5, "body": 40, "leg": 5 }
+                },
+                "teams": {
+                    "red": { "rounds_won": 13 },
+                    "blue": { "rounds_won": 8 }
+                }
+            }]
+        });
+        let rows = parse_matches(&data, "Someone", "0000");
+        let r = &rows[0];
+        assert_eq!(r["rounds"].as_i64(), Some(21));
+        assert_eq!(r["my_rounds"].as_i64(), Some(8));
+        assert_eq!(r["won"].as_bool(), Some(false));
+    }
 }
