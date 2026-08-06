@@ -148,6 +148,8 @@ export interface LookupResult {
     enemy_rounds: number;
     damage: number;
     won: boolean | null;
+    match_id?: string;
+    mvp?: "match" | "team";
   }>;
   error?: string;
 }

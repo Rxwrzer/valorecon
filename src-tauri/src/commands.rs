@@ -9,7 +9,7 @@ use crate::models::{AppSettings, AppState, PullStatus};
 
 use crate::store::profile::{ProfileStore, profile_store_dir};
 use crate::riot::parse::{parse_rank_from_updates, parse_competitive_updates};
-use crate::henrik::{HenrikClient, parse_account, parse_mmr, parse_matches};
+use crate::henrik::{HenrikClient, parse_account, parse_mmr, parse_matches, parse_mvp_map};
 
 // ── Live state ─────────────────────────────────────────────────────────────
 
@@ -311,6 +311,19 @@ pub async fn lookup(
     let matches = henrik.matches(&effective_region, &name, &tag).await.ok()
         .map(|m| parse_matches(&m, &name, &tag))
         .unwrap_or_default();
+
+    // One extra call: full scoreboards for recent games → match/team MVP overlay.
+    let puuid = account_parsed.get("puuid").and_then(|v| v.as_str()).unwrap_or("").to_string();
+    let mvp = henrik.matches_full(&effective_region, &name, &tag, 5).await.ok()
+        .map(|m| parse_mvp_map(&m, &puuid, &name, &tag))
+        .unwrap_or_default();
+    let matches: Vec<serde_json::Value> = matches.into_iter().map(|mut row| {
+        let mid = row.get("match_id").and_then(|v| v.as_str()).unwrap_or("").to_string();
+        if let Some(label) = mvp.get(&mid) {
+            row.insert("mvp".into(), label.clone().into());
+        }
+        serde_json::Value::Object(row)
+    }).collect();
 
     Ok(serde_json::json!({
         "account": account_parsed,

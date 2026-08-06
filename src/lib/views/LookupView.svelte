@@ -225,7 +225,10 @@
             {monogram(g.agent)}
             {#if g.agent_icon}<img src={g.agent_icon} alt="" onerror={hideImg} />{/if}
           </span>
-          <div class="who"><div class="agn">{g.agent || "—"}</div><div class="mp">{g.map}</div></div>
+          <div class="who">
+            <div class="agn">{g.agent || "—"}{#if g.mvp}<span class="mvp {g.mvp}" title={g.mvp === "match" ? "Match MVP" : "Team MVP"}>MVP</span>{/if}</div>
+            <div class="mp">{g.map}</div>
+          </div>
           <div class="result">
             <div class="rr2 mono">{g.my_rounds}–{g.enemy_rounds}</div>
             <div class="wl">{won ? "Victory" : lost ? "Defeat" : "—"}</div>
@@ -320,6 +323,9 @@
   .m .face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .m .who { min-width: 0; }
   .m .who .agn { font-weight: 800; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .m .who .mvp { display: inline-block; font-size: 8px; font-weight: 900; letter-spacing: .4px; padding: 1px 4px; border-radius: 4px; margin-left: 6px; vertical-align: middle; color: #0c0d12; }
+  .m .who .mvp.match { background: var(--warn); box-shadow: 0 0 10px -2px var(--warn); }
+  .m .who .mvp.team { background: color-mix(in srgb, var(--warn) 55%, var(--line2)); color: var(--text); }
   .m .who .mp { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; margin-top: 1px; }
   .m .result { text-align: center; }
   .m .result .rr2 { font-weight: 900; font-size: 15px; letter-spacing: .5px; }

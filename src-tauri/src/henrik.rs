@@ -96,6 +96,15 @@ impl HenrikClient {
         );
         self.get(&url).await
     }
+
+    /// Full match scoreboards (all players) for recent competitive games —
+    /// used to compute match/team MVP. One call covers several matches.
+    pub async fn matches_full(
+        &self, region: &str, name: &str, tag: &str, size: u32,
+    ) -> Result<Value, HenrikError> {
+        let url = format!("{BASE}/v4/matches/{region}/pc/{name}/{tag}?mode=competitive&size={size}");
+        self.get(&url).await
+    }
 }
 
 // ── Parsers ────────────────────────────────────────────────────────────────
@@ -107,6 +116,7 @@ pub fn parse_account(data: &Value) -> Option<serde_json::Map<String, Value>> {
     m.insert("tag".into(), d["tag"].clone());
     m.insert("region".into(), d["region"].clone());
     m.insert("level".into(), d["account_level"].clone());
+    m.insert("puuid".into(), d["puuid"].clone());
     // Player card art for the profile avatar. v1 account returns
     // card: { small, large, wide, id } (full URLs); some shapes give a bare id.
     let card = d.get("card");
@@ -135,6 +145,49 @@ pub fn parse_mmr(data: &Value) -> serde_json::Map<String, Value> {
     m.insert("peak_season".into(),
         d["highest_rank"]["season"].clone());
     m
+}
+
+/// From the v4 full-match response, work out for each match whether the queried
+/// player was match MVP (top combat score overall) or team MVP (top on their
+/// team). Because every player shares the same round count, comparing raw combat
+/// score is equivalent to comparing ACS. Returns match_id -> "match" | "team".
+pub fn parse_mvp_map(data: &Value, puuid: &str, name: &str, tag: &str)
+    -> std::collections::HashMap<String, String> {
+    use std::collections::HashMap;
+    let mut out: HashMap<String, String> = HashMap::new();
+    let arr = match data.get("data").and_then(|d| d.as_array()) { Some(a) => a, None => return out };
+    let score = |p: &Value| p.get("stats").and_then(|s| s.get("score")).and_then(|v| v.as_f64()).unwrap_or(0.0);
+    let team = |p: &Value| p.get("team_id").and_then(|v| v.as_str())
+        .or_else(|| p.get("team").and_then(|v| v.as_str())).unwrap_or("").to_string();
+    for m in arr {
+        let mid = m.get("metadata").and_then(|md| md.get("match_id")).and_then(|v| v.as_str()).unwrap_or("");
+        if mid.is_empty() { continue; }
+        // v4: flat `players`; older shapes nest under players.all_players.
+        let players = match m.get("players").and_then(|p| p.as_array())
+            .or_else(|| m.get("players").and_then(|p| p.get("all_players")).and_then(|a| a.as_array())) {
+            Some(p) => p, None => continue,
+        };
+        let is_me = |p: &Value| {
+            if !puuid.is_empty() && p.get("puuid").and_then(|v| v.as_str()) == Some(puuid) { return true; }
+            let pn = p.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let pt = p.get("tag").and_then(|v| v.as_str()).unwrap_or("");
+            pn.eq_ignore_ascii_case(name) && pt.eq_ignore_ascii_case(tag)
+        };
+        let me = match players.iter().find(|p| is_me(p)) { Some(p) => p, None => continue };
+        let my_score = score(me);
+        let my_team = team(me);
+        let mut match_best = f64::MIN;
+        let mut team_best = f64::MIN;
+        for p in players {
+            let s = score(p);
+            if s > match_best { match_best = s; }
+            if team(p) == my_team && s > team_best { team_best = s; }
+        }
+        let label = if my_score >= match_best { "match" }
+            else if my_score >= team_best { "team" } else { "" };
+        if !label.is_empty() { out.insert(mid.to_string(), label.to_string()); }
+    }
+    out
 }
 
 pub fn parse_matches(data: &Value, name: &str, tag: &str) -> Vec<serde_json::Map<String, Value>> {
@@ -210,6 +263,8 @@ pub fn parse_matches(data: &Value, name: &str, tag: &str) -> Vec<serde_json::Map
                 }
             });
 
+        let match_id = g.get("meta").and_then(|m| m.get("id")).and_then(|v| v.as_str())
+            .unwrap_or("").to_string();
         let map = g.get("meta").and_then(|m| m.get("map"))
             .and_then(|m| m.get("name")).and_then(|v| v.as_str())
             .unwrap_or("").to_string();
@@ -225,6 +280,7 @@ pub fn parse_matches(data: &Value, name: &str, tag: &str) -> Vec<serde_json::Map
         let agent_icon = if agent_id.is_empty() { String::new() }
             else { format!("https://media.valorant-api.com/agents/{agent_id}/displayicon.png") };
         let mut row = serde_json::Map::new();
+        row.insert("match_id".into(), match_id.into());
         row.insert("agent".into(), agent.into());
         row.insert("agent_icon".into(), agent_icon.into());
         row.insert("map".into(), map.into());
@@ -328,6 +384,28 @@ mod tests {
         assert_eq!(r["enemy_rounds"].as_i64(), Some(11));
         assert_eq!(r["won"].as_bool(), Some(true));
         assert_eq!(r["agent"].as_str(), Some("Jett"));
+    }
+
+    #[test]
+    fn parse_mvp_map_match_and_team() {
+        let data = json!({ "data": [{
+            "metadata": { "match_id": "M1" },
+            "players": [
+                { "puuid": "me",  "team_id": "Red",  "stats": { "score": 5000 } },
+                { "puuid": "x",   "team_id": "Red",  "stats": { "score": 4000 } },
+                { "puuid": "y",   "team_id": "Blue", "stats": { "score": 6000 } },
+            ]
+        }, {
+            "metadata": { "match_id": "M2" },
+            "players": [
+                { "puuid": "me",  "team_id": "Blue", "stats": { "score": 7000 } },
+                { "puuid": "z",   "team_id": "Blue", "stats": { "score": 3000 } },
+                { "puuid": "w",   "team_id": "Red",  "stats": { "score": 6500 } },
+            ]
+        }]});
+        let m = parse_mvp_map(&data, "me", "", "");
+        assert_eq!(m.get("M1").map(|s| s.as_str()), Some("team"));  // top on Red, not overall
+        assert_eq!(m.get("M2").map(|s| s.as_str()), Some("match")); // top overall
     }
 
     #[test]

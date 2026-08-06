@@ -1,6 +1,6 @@
 [package]
 name = "valorecon"
-version = "0.3.0"
+version = "0.3.1"
 description = "ValoRecon — lightweight VALORANT lobby tracker"
 authors = ["Corvin"]
 edition = "2021"

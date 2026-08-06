@@ -1,11 +1,11 @@
 {
-  "version": "0.3.0",
-  "notes": "Profile redesign: hero rank card, RR bar, form pips, deep-stat tiles, RR trend area chart, rich match rows with agent portraits. Unified visual system across the app.",
+  "version": "0.3.1",
+  "notes": "Lookup: match/team MVP badges on recent games (one extra HenrikDev v4 call for full scoreboards).",
   "pub_date": "2026-08-06T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ01IQW0xUkovRHc3R21yN0Q4RDVzalRtYW5zenBGbnNzSjJUWVV0ZzdmTkp4MzhWNkQ3SzBhQlhNSHVjRENBVzdueVRkaUlSSThjUFViTFZudHMrU0FzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MDM3NzkzCWZpbGU6VmFsb1JlY29uXzAuMy4wX3g2NC1zZXR1cC5leGUKZ0R1b1ljWmpuVDg1MHE3OS8rMW9sbW5UbWd2WHZaZWlxOTkvTllrN1VzUHhIcE5uU0phelk4YWZ3RXhwaG9sRS9XMjlOWnpmMTFZRWtuQitVK0JTRGc9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.3.0/ValoRecon_0.3.0_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0xrbEZwT2FleGprdWY3cndlYnZLNTNYMk5tdCtpRnUrdXB4U0lVRi83NkZZYzFPaDVxU2F3NnhJdTB0SmFRZmZ0VkU5SnhkTndNanBwS296V1JBTXdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MDM5Njc4CWZpbGU6VmFsb1JlY29uXzAuMy4xX3g2NC1zZXR1cC5leGUKay9pcXBTd2J4MHZBMEZwQmU4cXVVK3NnSGl3ZkVaS1FIQXNYSWdybndabnA4YXBTY09ya2gzcjJkOTU3WXUyUjhBNk8xWEhkNjd2Mi96SnBKK25SREE9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.3.1/ValoRecon_0.3.1_x64-setup.exe"
     }
   }
 }
