@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "0.2.1",
   "notes": "Fix Lookup ACS, Win Rate, and agent names (case-insensitive team parsing)",
   "pub_date": "2026-08-06T00:00:00Z",
