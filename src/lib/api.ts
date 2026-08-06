@@ -66,6 +66,7 @@ export interface RRHistoryPoint {
   elo: number;
   date_ms: number;
   agent: string;
+  agent_icon: string;
   kills: number;
   deaths: number;
   assists: number;

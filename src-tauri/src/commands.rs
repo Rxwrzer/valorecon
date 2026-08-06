@@ -64,7 +64,7 @@ pub async fn refresh_profile(tracker: State<'_, AppTracker>) -> Result<serde_jso
             let tier_name = content.map(|c| c.tier(r.tier).name).unwrap_or_default();
 
             // Per-game stats from the store (present only for deep-pulled games).
-            let (agent, kills, deaths, assists, hs_pct) = match store.record(&r.match_id) {
+            let (agent, agent_icon, kills, deaths, assists, hs_pct) = match store.record(&r.match_id) {
                 Some(rec) => {
                     let k = rec.get("kills").and_then(|v| v.as_f64()).unwrap_or(0.0);
                     let d = rec.get("deaths").and_then(|v| v.as_f64()).unwrap_or(0.0);
@@ -75,10 +75,12 @@ pub async fn refresh_profile(tracker: State<'_, AppTracker>) -> Result<serde_jso
                     let total = hs + bs + ls;
                     let hs_pct = if total > 0.0 { (hs / total * 100.0).round() as i64 } else { 0 };
                     let agent_id = rec.get("agent").and_then(|v| v.as_str()).unwrap_or("");
-                    let agent_name = content.map(|c| c.agent(agent_id).name).unwrap_or_default();
-                    (agent_name, k as i64, d as i64, a as i64, hs_pct)
+                    let ai = content.map(|c| c.agent(agent_id));
+                    let agent_name = ai.as_ref().map(|a| a.name.clone()).unwrap_or_default();
+                    let agent_icon = ai.map(|a| a.icon).unwrap_or_default();
+                    (agent_name, agent_icon, k as i64, d as i64, a as i64, hs_pct)
                 }
-                None => (String::new(), -1, -1, -1, -1),
+                None => (String::new(), String::new(), -1, -1, -1, -1),
             };
 
             serde_json::json!({
@@ -91,6 +93,7 @@ pub async fn refresh_profile(tracker: State<'_, AppTracker>) -> Result<serde_jso
                 "elo": r.elo,
                 "date_ms": r.date_ms,
                 "agent": agent,
+                "agent_icon": agent_icon,
                 "kills": kills,
                 "deaths": deaths,
                 "assists": assists,
