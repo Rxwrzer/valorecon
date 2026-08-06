@@ -53,8 +53,9 @@
       } else {
         updateStatus = "uptodate";
       }
-    } catch {
+    } catch (e) {
       updateStatus = "error";
+      updateVersion = String(e);
     }
   }
 
@@ -135,7 +136,7 @@
       {:else if updateStatus === "installing"}
         <span class="muted" style="font-size:12px">Downloading…</span>
       {:else if updateStatus === "error"}
-        <span class="bad" style="font-size:12px">Check failed</span>
+        <span class="bad" style="font-size:11px" title={updateVersion}>Check failed</span>
       {/if}
     </div>
   </div>
