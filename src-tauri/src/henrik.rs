@@ -217,8 +217,16 @@ pub fn parse_matches(data: &Value, name: &str, tag: &str) -> Vec<serde_json::Map
             .or_else(|| me.get("character").and_then(|c| c.get("name")).and_then(|v| v.as_str()))
             .or_else(|| stats.get("agent").and_then(|a| a.get("name")).and_then(|v| v.as_str()))
             .unwrap_or("").to_string();
+        // Agent portrait from the character UUID via the valorant-api media CDN.
+        let agent_id = stats.get("character").and_then(|c| c.get("id")).and_then(|v| v.as_str())
+            .or_else(|| me.get("character").and_then(|c| c.get("id")).and_then(|v| v.as_str()))
+            .or_else(|| stats.get("agent").and_then(|a| a.get("id")).and_then(|v| v.as_str()))
+            .unwrap_or("");
+        let agent_icon = if agent_id.is_empty() { String::new() }
+            else { format!("https://media.valorant-api.com/agents/{agent_id}/displayicon.png") };
         let mut row = serde_json::Map::new();
         row.insert("agent".into(), agent.into());
+        row.insert("agent_icon".into(), agent_icon.into());
         row.insert("map".into(), map.into());
         row.insert("kills".into(), kills.into());
         row.insert("deaths".into(), deaths.into());

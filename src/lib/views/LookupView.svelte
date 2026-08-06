@@ -47,6 +47,7 @@
     if (!gs?.length) return null;
     let k = 0, d = 0, a = 0, score = 0, rounds = 0, dmg = 0, hsW = 0, wW = 0, wins = 0, decided = 0;
     const agentCount: Record<string, number> = {};
+    const agentIcon: Record<string, string> = {};
     for (const g of gs) {
       k += g.kills; d += g.deaths; a += g.assists;
       score += g.score || 0; rounds += g.rounds || 0; dmg += g.damage || 0;
@@ -54,15 +55,16 @@
       hsW += (g.hs || 0) * w; wW += w;
       if (g.won === true) { wins++; decided++; }
       else if (g.won === false) { decided++; }
-      if (g.agent) agentCount[g.agent] = (agentCount[g.agent] ?? 0) + 1;
+      if (g.agent) {
+        agentCount[g.agent] = (agentCount[g.agent] ?? 0) + 1;
+        if (g.agent_icon) agentIcon[g.agent] = g.agent_icon;
+      }
     }
     const n = gs.length;
     const topAgent = Object.entries(agentCount).sort((x, y) => y[1] - x[1])[0]?.[0] ?? "—";
     const topAgentGames = topAgent === "—" ? 0 : agentCount[topAgent];
-    // oldest → newest for the timeline visuals (matches arrive newest-first)
-    const chrono = [...gs].reverse();
-    const form = chrono.map((g) => g.won);
-    const acsSeries = chrono.map((g) => (g.rounds > 0 ? Math.round(g.score / g.rounds) : 0));
+    // oldest → newest for the form strip (matches arrive newest-first)
+    const form = [...gs].reverse().map((g) => g.won);
     return {
       games: n,
       kda: d > 0 ? ((k + a) / d).toFixed(2) : (k + a).toFixed(2),
@@ -72,26 +74,12 @@
       hs: wW > 0 ? Math.round(hsW / wW) : Math.round(gs.reduce((s, g) => s + g.hs, 0) / n),
       wr: decided > 0 ? Math.round((wins / decided) * 100) : null,
       wins, losses: decided - wins, decided,
-      topAgent, topAgentGames, form, acsSeries,
+      topAgent, topAgentGames, topAgentIcon: agentIcon[topAgent] ?? "", form,
     };
   });
 
-  // Sparkline geometry for the ACS tile.
-  const spark = $derived.by(() => {
-    const s = summary?.acsSeries;
-    if (!s || s.length < 2) return null;
-    const W = 120, H = 30, pad = 3;
-    const min = Math.min(...s), max = Math.max(...s);
-    const span = max - min || 1;
-    const pts = s.map((v, i) => {
-      const x = (i / (s.length - 1)) * W;
-      const y = pad + (1 - (v - min) / span) * (H - pad * 2);
-      return [x, y] as const;
-    });
-    return { W, H, poly: pts.map((p) => p.join(",")).join(" "), end: pts[pts.length - 1] };
-  });
-
   function rankFallbackColor(c?: string) { return c && c !== "" ? c : "#8b90a0"; }
+  function hideImg(e: Event) { (e.currentTarget as HTMLElement).style.display = "none"; }
 </script>
 
 <div class="mhead"><h2>Look Up a Player</h2></div>
@@ -188,17 +176,7 @@
       <div class="tile">
         <div class="v {cls(summary.acs, 250, 150)} mono">{summary.acs ?? "—"}</div>
         <div class="k">Avg ACS</div>
-        {#if spark}
-          <div class="spark">
-            <svg viewBox="0 0 {spark.W} {spark.H}" width="100%" height="30" preserveAspectRatio="none">
-              <polyline points={spark.poly} fill="none"
-                stroke="var(--good)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>
-              <circle cx={spark.end[0]} cy={spark.end[1]} r="3" fill="var(--good)"/>
-            </svg>
-          </div>
-        {:else}
-          <div class="sub">per game</div>
-        {/if}
+        <div class="sub">combat score / round</div>
       </div>
       <div class="tile">
         <div class="v n mono">{summary.adr ?? "—"}</div>
@@ -218,7 +196,10 @@
       <div class="tile">
         <div class="k" style="margin-top:0;margin-bottom:9px">Most Played</div>
         <div class="agentchip">
-          <span class="mono-face" style="background:{agentColor(summary.topAgent)}">{monogram(summary.topAgent)}</span>
+          <span class="mono-face" style="background:{agentColor(summary.topAgent)}">
+            {monogram(summary.topAgent)}
+            {#if summary.topAgentIcon}<img src={summary.topAgentIcon} alt="" onerror={hideImg} />{/if}
+          </span>
           <div>
             <div class="ag-name">{summary.topAgent}</div>
             <div class="sub" style="margin-top:2px">{summary.topAgentGames} games</div>
@@ -240,7 +221,10 @@
         {@const macs = g.rounds > 0 ? Math.round(g.score / g.rounds) : null}
         <div class="m {won ? 'win' : lost ? 'loss' : 'tie'}">
           <span class="stripe"></span>
-          <span class="face" style="background:{agentColor(g.agent)}">{monogram(g.agent)}</span>
+          <span class="face" style="background:{agentColor(g.agent)}">
+            {monogram(g.agent)}
+            {#if g.agent_icon}<img src={g.agent_icon} alt="" onerror={hideImg} />{/if}
+          </span>
           <div class="who"><div class="agn">{g.agent || "—"}</div><div class="mp">{g.map}</div></div>
           <div class="result">
             <div class="rr2 mono">{g.my_rounds}–{g.enemy_rounds}</div>
@@ -317,7 +301,8 @@
   .v.g { color: var(--good); } .v.b { color: var(--bad); } .v.n { color: var(--text); } .v.warm { color: var(--warn); }
   .spark { margin-top: 8px; }
   .agentchip { display: flex; align-items: center; gap: 9px; }
-  .agentchip .mono-face { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 900; font-size: 12px; color: #0c0d12; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+  .agentchip .mono-face { position: relative; width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 900; font-size: 12px; color: #0c0d12; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); overflow: hidden; }
+  .agentchip .mono-face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .agentchip .ag-name { font-weight: 900; font-size: 15px; }
 
   /* ── MATCH LIST ───────────────────────────────────────────── */
@@ -331,7 +316,8 @@
   .m.win { --rc: var(--good); } .m.loss { --rc: var(--bad); } .m.tie { --rc: var(--line2); }
   .m:hover { transform: translateX(2px); border-color: color-mix(in srgb, var(--rc) 40%, var(--line2)); }
   .m .stripe { align-self: stretch; border-radius: 11px 0 0 11px; background: var(--rc); margin: -9px 0; }
-  .m .face { width: 44px; height: 44px; border-radius: 9px; display: grid; place-items: center; font-weight: 900; font-size: 15px; color: #0c0d12; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+  .m .face { position: relative; width: 44px; height: 44px; border-radius: 9px; display: grid; place-items: center; font-weight: 900; font-size: 15px; color: #0c0d12; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); overflow: hidden; }
+  .m .face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .m .who { min-width: 0; }
   .m .who .agn { font-weight: 800; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .m .who .mp { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; margin-top: 1px; }

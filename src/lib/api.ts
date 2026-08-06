@@ -134,6 +134,7 @@ export interface LookupResult {
   };
   matches?: Array<{
     agent: string;
+    agent_icon: string;
     map: string;
     kills: number;
     deaths: number;
