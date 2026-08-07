@@ -1,11 +1,11 @@
 {
-  "version": "0.3.2",
-  "notes": "Lookup pulls 25 recent games (was 10); MVP coverage widened to last 10; form strip capped to last 10.",
+  "version": "0.3.3",
+  "notes": "Fix ally agent portraits not showing in Live; fix mid-match false 'in menus' (transient API/token errors now preserve the scoreboard and re-authenticate instead of wiping it).",
   "pub_date": "2026-08-07T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ041aFMzWVB0SGZqazY1Q0RKTWEveG8yS2c3WHkwU3ZqazJuVE5NZzExQnBYMythMVBzcFBhK1BibHczTDZ4Z1FpMDlnam43MUxySmkzT24xNzhZR0E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTMyNDAzCWZpbGU6VmFsb1JlY29uXzAuMy4yX3g2NC1zZXR1cC5leGUKTTVVTHI1bFI1K2pJOWJNZnVkRjNhM2w3VkRMZlNFN0pzN3k0K01IQ2pQQmZyS3NGSTY5UXNtdnh5QTFhMDhxaXJsL0Q1VVlYb1IrdUJmU24zdzJjREE9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.3.2/ValoRecon_0.3.2_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0N4V0R2N1JjQTd0NzY5UWpwY1ptYmFFY3Z2ZzBmdVpqb0sxeHBoUk9FZGw1N2RtdlI3ZHR0MWVjeHd6SHpHWnNyQks2UVI3a1RGVmsybEFxSUhJRkE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTM2MjAwCWZpbGU6VmFsb1JlY29uXzAuMy4zX3g2NC1zZXR1cC5leGUKN2pqb2FwUEpqazhPNVA3YXpCRVI0RTliNndRTU0vNlA4YXNBOEU1ZmdhSTFkT29EcWtjZ2ZFc1ZZWUN4WkppZHNnS2VBSG5MaG40OTYvOVVkWGlVQnc9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.3.3/ValoRecon_0.3.3_x64-setup.exe"
     }
   }
 }

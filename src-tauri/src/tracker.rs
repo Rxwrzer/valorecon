@@ -231,10 +231,20 @@ async fn do_poll(tracker: Arc<Mutex<Tracker>>, http: &reqwest::Client) -> Result
     let limiter = { tracker.lock().await.limiter.clone() };
     let mut riot = RiotClient::new(http.clone(), creds.clone(), limiter);
 
-    // Check game phase
-    let coregame_id = riot.coregame_match_id().await.unwrap_or(None);
+    // Check game phase. Ok(None) = genuinely not in that phase (404). An Err is a
+    // transient API/auth failure (e.g. an expired token mid-match) — do NOT treat
+    // it as "in menus" (that wipes the live scoreboard). Instead drop the cached
+    // credentials so the next poll re-authenticates, and return the error so the
+    // poll loop preserves the last known state.
+    let coregame_id = match riot.coregame_match_id().await {
+        Ok(v) => v,
+        Err(e) => { tracker.lock().await.creds = None; return Err(e.into()); }
+    };
     let pregame_id = if coregame_id.is_none() {
-        riot.pregame_match_id().await.unwrap_or(None)
+        match riot.pregame_match_id().await {
+            Ok(v) => v,
+            Err(e) => { tracker.lock().await.creds = None; return Err(e.into()); }
+        }
     } else {
         None
     };

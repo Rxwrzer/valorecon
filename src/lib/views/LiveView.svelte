@@ -15,6 +15,27 @@
     if (selfPartyGroup > 0 && group === selfPartyGroup) return 'var(--accent)';
     return PARTY_COLORS[(group - 1) % PARTY_COLORS.length];
   }
+
+  const AGENT_COLORS: Record<string, string> = {
+    Jett:"#4d7cff", Reyna:"#b56ad0", Raze:"#f0883e", Phoenix:"#ff7a3d", Yoru:"#3f6fd6",
+    Neon:"#3fa9ff", Iso:"#5aa9d6", Breach:"#c8623a", Sova:"#4a7fb5", Fade:"#5b5f8c",
+    Skye:"#5fb37a", KAYO:"#4a5568", Gekko:"#8fbf4d", Killjoy:"#e9c65a", Cypher:"#c9d1dc",
+    Chamber:"#d4af6a", Sage:"#3fb6a8", Viper:"#3fae6a", Omen:"#5a5f9c", Brimstone:"#c1502e",
+    Astra:"#8b5c9e", Harbor:"#3f9b7c", Clove:"#d98fd0", Deadlock:"#6a8caf", Vyse:"#7a5fc0",
+  };
+  function agentColor(name: string): string {
+    if (!name) return "#4b5160";
+    const key = name.replace(/[^a-zA-Z]/g, "");
+    if (AGENT_COLORS[key]) return AGENT_COLORS[key];
+    let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffff;
+    return `hsl(${h % 360} 42% 52%)`;
+  }
+  const monogram = (n: string) => (n || "").replace(/[^a-zA-Z]/g, "").slice(0, 2).toUpperCase() || "—";
+  // Clear/set the overlay image on load; hide on error so the monogram shows.
+  // onload is essential: a row created in pregame (empty icon → error → hidden)
+  // must un-hide once a valid in-game icon finally loads.
+  function showImg(e: Event) { (e.currentTarget as HTMLElement).style.display = "block"; }
+  function hideImg(e: Event) { (e.currentTarget as HTMLElement).style.display = "none"; }
   import Toast from "$lib/components/Toast.svelte";
 
   let { appState } = $props<{ appState: AppState }>();
@@ -149,9 +170,13 @@
             class="row {p.is_self ? 'self' : ''} {p.party_group > 0 ? 'in-party' : ''}"
             style="--tier:{p.current.tier_color};--agent:{p.agent_color || p.current.tier_color};--grid:{GRID};--party:{partyColor(p.party_group)}"
           >
-            <!-- Agent icon -->
-            <img class="agent" src={p.agent_icon} alt={p.agent_name}
-                 onerror={(e) => (e.currentTarget as HTMLElement).style.visibility = 'hidden'} />
+            <!-- Agent icon (monogram fallback behind the portrait) -->
+            <span class="agent" style="background:{agentColor(p.agent_name)}">
+              <span class="agent-mono">{monogram(p.agent_name)}</span>
+              {#if p.agent_icon}
+                <img src={p.agent_icon} alt={p.agent_name} onload={showImg} onerror={hideImg} />
+              {/if}
+            </span>
 
             <!-- Name + meta -->
             <div class="pl">
@@ -355,11 +380,26 @@
 }
 
 .agent {
+  position: relative;
   width: 42px; height: 42px;
   border-radius: 9px;
-  background: var(--panel3);
-  object-fit: cover;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
   box-shadow: inset 0 0 0 1px var(--line2), 0 0 0 2px color-mix(in srgb, var(--agent,#000) 45%, transparent);
+}
+.agent-mono {
+  font-weight: 900;
+  font-size: 13px;
+  color: #0c0d12;
+  letter-spacing: .3px;
+}
+.agent img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .pl { min-width: 0; }
