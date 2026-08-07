@@ -314,7 +314,7 @@ pub async fn lookup(
 
     // One extra call: full scoreboards for recent games → match/team MVP overlay.
     let puuid = account_parsed.get("puuid").and_then(|v| v.as_str()).unwrap_or("").to_string();
-    let mvp = henrik.matches_full(&effective_region, &name, &tag, 5).await.ok()
+    let mvp = henrik.matches_full(&effective_region, &name, &tag, 10).await.ok()
         .map(|m| parse_mvp_map(&m, &puuid, &name, &tag))
         .unwrap_or_default();
     let matches: Vec<serde_json::Value> = matches.into_iter().map(|mut row| {

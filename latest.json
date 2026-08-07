@@ -1,11 +1,11 @@
 {
-  "version": "0.3.1",
-  "notes": "Lookup: match/team MVP badges on recent games (one extra HenrikDev v4 call for full scoreboards).",
-  "pub_date": "2026-08-06T00:00:00Z",
+  "version": "0.3.2",
+  "notes": "Lookup pulls 25 recent games (was 10); MVP coverage widened to last 10; form strip capped to last 10.",
+  "pub_date": "2026-08-07T00:00:00Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ0xrbEZwT2FleGprdWY3cndlYnZLNTNYMk5tdCtpRnUrdXB4U0lVRi83NkZZYzFPaDVxU2F3NnhJdTB0SmFRZmZ0VkU5SnhkTndNanBwS296V1JBTXdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MDM5Njc4CWZpbGU6VmFsb1JlY29uXzAuMy4xX3g2NC1zZXR1cC5leGUKay9pcXBTd2J4MHZBMEZwQmU4cXVVK3NnSGl3ZkVaS1FIQXNYSWdybndabnA4YXBTY09ya2gzcjJkOTU3WXUyUjhBNk8xWEhkNjd2Mi96SnBKK25SREE9PQo=",
-      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.3.1/ValoRecon_0.3.1_x64-setup.exe"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTSkJwb2J6OXVsQ041aFMzWVB0SGZqazY1Q0RKTWEveG8yS2c3WHkwU3ZqazJuVE5NZzExQnBYMythMVBzcFBhK1BibHczTDZ4Z1FpMDlnam43MUxySmkzT24xNzhZR0E0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MTMyNDAzCWZpbGU6VmFsb1JlY29uXzAuMy4yX3g2NC1zZXR1cC5leGUKTTVVTHI1bFI1K2pJOWJNZnVkRjNhM2w3VkRMZlNFN0pzN3k0K01IQ2pQQmZyS3NGSTY5UXNtdnh5QTFhMDhxaXJsL0Q1VVlYb1IrdUJmU24zdzJjREE9PQo=",
+      "url": "https://github.com/Rxwrzer/valorecon/releases/download/v0.3.2/ValoRecon_0.3.2_x64-setup.exe"
     }
   }
 }

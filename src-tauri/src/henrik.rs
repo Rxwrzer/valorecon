@@ -84,7 +84,7 @@ impl HenrikClient {
     }
 
     pub async fn matches(&self, region: &str, name: &str, tag: &str) -> Result<Value, HenrikError> {
-        let url = format!("{BASE}/v1/lifetime/matches/{region}/{name}/{tag}?mode=competitive&size=10");
+        let url = format!("{BASE}/v1/lifetime/matches/{region}/{name}/{tag}?mode=competitive&size=25");
         self.get(&url).await
     }
 

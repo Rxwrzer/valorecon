@@ -63,8 +63,8 @@
     const n = gs.length;
     const topAgent = Object.entries(agentCount).sort((x, y) => y[1] - x[1])[0]?.[0] ?? "—";
     const topAgentGames = topAgent === "—" ? 0 : agentCount[topAgent];
-    // oldest → newest for the form strip (matches arrive newest-first)
-    const form = [...gs].reverse().map((g) => g.won);
+    // oldest → newest for the form strip; cap to the last 10 so the strip stays tidy.
+    const form = [...gs].reverse().map((g) => g.won).slice(-10);
     return {
       games: n,
       kda: d > 0 ? ((k + a) / d).toFixed(2) : (k + a).toFixed(2),
@@ -152,7 +152,7 @@
 
     {#if summary}
       <div class="hero-form">
-        <div class="lbl">Last {summary.games} · Form</div>
+        <div class="lbl">Last {Math.min(summary.games, 10)} · Form</div>
         <div class="pips">
           {#each summary.form as w}
             <span class="pip {w === true ? 'w' : w === false ? 'l' : 'u'}">{w === true ? "W" : w === false ? "L" : "·"}</span>
