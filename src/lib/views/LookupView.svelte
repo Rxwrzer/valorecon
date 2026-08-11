@@ -2,9 +2,22 @@
 <script lang="ts">
   import { api, type LookupResult } from "$lib/api";
 
+  let { initialQuery = "", nonce = 0 } = $props<{ initialQuery?: string; nonce?: number }>();
+
   let riotId = $state("");
   let loading = $state(false);
   let result = $state<LookupResult | null>(null);
+
+  // Auto-run when navigated here from a live player's name. Keyed on the nonce so
+  // every click re-triggers (even the same name) but manual tab visits / typing don't.
+  let lastNonce = -1;
+  $effect(() => {
+    if (nonce !== lastNonce && initialQuery.trim()) {
+      lastNonce = nonce;
+      riotId = initialQuery.trim();
+      doLookup();
+    }
+  });
 
   async function doLookup() {
     const id = riotId.trim();

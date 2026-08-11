@@ -38,7 +38,7 @@
   function hideImg(e: Event) { (e.currentTarget as HTMLElement).style.display = "none"; }
   import Toast from "$lib/components/Toast.svelte";
 
-  let { appState } = $props<{ appState: AppState }>();
+  let { appState, onLookup } = $props<{ appState: AppState; onLookup?: (riotId: string) => void }>();
 
   let refreshing = $state(false);
   let toast: Toast | null = $state(null);
@@ -186,10 +186,13 @@
                 {:else if p.name}
                   <!-- svelte-ignore a11y_click_events_have_key_events -->
                   <!-- svelte-ignore a11y_no_static_element_interactions -->
-                  <span class="copyname" title="Click to copy"
-                        onclick={(e) => copyName(p.name, e.currentTarget as HTMLElement)}>
+                  <span class="lookupname" title="Look up {p.name}"
+                        onclick={() => onLookup?.(p.name)}>
                     {p.name}
                   </span>
+                  <button class="copybtn" title="Copy name"
+                          onclick={(e) => copyName(p.name, e.currentTarget as HTMLElement)}
+                          aria-label="Copy name">⧉</button>
                 {:else}
                   <span class="hidden">{p.agent_name || "—"}</span>
                 {/if}
@@ -444,13 +447,29 @@
   font-weight: 700;
 }
 
-.copyname {
+.lookupname {
   cursor: pointer;
   border-bottom: 1px dashed transparent;
   border-radius: 3px;
   transition: color .12s, border-color .12s;
 }
-.copyname:hover { color: #fff; border-bottom-color: var(--accent); }
-.copyname:active { color: var(--accent); }
-:global(.copyname.copied) { color: var(--good); border-bottom-color: transparent; }
+.lookupname:hover { color: #fff; border-bottom-color: var(--accent); }
+.lookupname:active { color: var(--accent); }
+.copybtn {
+  background: none;
+  border: 0;
+  color: var(--dim);
+  font-size: 12px;
+  line-height: 1;
+  padding: 2px 4px;
+  margin-left: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity .12s, color .12s, background .12s;
+}
+.row:hover .copybtn { opacity: 1; }
+.copybtn:hover { color: var(--text); background: var(--panel3); }
+:global(.copybtn.copied) { color: var(--good); opacity: 1; }
 </style>

@@ -58,11 +58,28 @@ npm run tauri dev       # development (hot-reload)
 npm run tauri build     # release build → src-tauri/target/release/bundle/
 ```
 
-## Privacy
+## Privacy & Safety
 
-- No account creation, no cloud sync, no telemetry
-- Your HenrikDev API key is stored locally in `%APPDATA%\ValoRecon\config.json`
-- Match data is cached locally in `%APPDATA%\ValoRecon\` and never leaves your machine
+**Not affiliated with or endorsed by Riot Games.** ValoRecon is an independent, open-source project.
+
+**Is it safe / can it get me banned?** ValoRecon is designed to stay well clear of anything an anti-cheat cares about:
+
+- **Read-only.** It never injects into the VALORANT process, reads no game memory, and modifies no game files. It runs as its own normal desktop window — there is **no overlay injected into the game**, which is a deliberate choice to avoid any interaction with Vanguard.
+- **Same data the client already exposes.** Live lobby data comes from VALORANT's **local client API** — the same local endpoint the game's own client UI reads from. ValoRecon reads the lockfile VALORANT writes to disk while running; it does not touch your Riot password or auth beyond that local handshake.
+- **No automation.** It does not play, click, aim, or act in-game in any way. It only displays information.
+
+Use of any third-party tool is at your own discretion — but ValoRecon takes the most conservative, hands-off approach possible.
+
+**What data leaves your machine:**
+
+- **Nothing, by default.** With no HenrikDev key set, everything stays local — live lobby, ranks, and stats all come from your own Riot local API.
+- **Only when you use Lookup or opt into deeper stats:** the Riot ID you search (and your HenrikDev key) are sent to the HenrikDev API to fetch that player's public match history. Agent/map/rank images are fetched from valorant-api.com.
+
+**What's stored locally:**
+
+- HenrikDev API key and settings → `%APPDATA%\ValoRecon\config.json`
+- Cached match history and stats → `%APPDATA%\ValoRecon\`
+- No account creation, no cloud sync, no telemetry, no analytics.
 
 ## License
 

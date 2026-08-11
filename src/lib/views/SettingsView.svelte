@@ -123,6 +123,20 @@
       {#if saved}<span class="ok" style="margin-left:12px">Saved.</span>{/if}
     </div>
 
+    <div class="privacy">
+      <div class="privacy-h">Privacy &amp; Safety</div>
+      <p>
+        ValoRecon is <b>read-only</b> — it never injects into VALORANT, reads no game
+        memory, and automates nothing. Live data comes from the same local client API
+        the game's own UI uses.
+      </p>
+      <p>
+        Nothing leaves your PC unless you use <b>Lookup</b> or opt into deeper stats —
+        then the searched Riot ID and your HenrikDev key are sent to the HenrikDev API.
+        No account, no telemetry. Key &amp; cache live in <code>%APPDATA%\ValoRecon</code>.
+      </p>
+    </div>
+
     <div class="update-row">
       <div class="version">ValoRecon {settings.version} · Not affiliated with Riot Games</div>
       {#if updateStatus === "idle"}
@@ -149,7 +163,13 @@
 .mhead h2 { font-size: 17px; margin: 0; font-weight: 900; letter-spacing: .4px; text-transform: uppercase; border-left: 3px solid var(--accent); padding-left: 10px; }
 .form { max-width: 460px; display: flex; flex-direction: column; gap: 15px; }
 .form label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 7px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; }
-.update-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.privacy { max-width: 520px; margin-top: 22px; background: var(--panel2); border: 1px solid var(--line); border-radius: 11px; padding: 14px 16px; }
+.privacy-h { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 9px; }
+.privacy p { margin: 0 0 9px; font-size: 12px; line-height: 1.5; color: var(--dim); }
+.privacy p:last-child { margin-bottom: 0; }
+.privacy b { color: var(--text); font-weight: 800; }
+.privacy code { background: var(--panel3); padding: 1px 5px; border-radius: 4px; font-size: 11px; color: var(--muted); }
+.update-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
 .version { color: var(--dim); font-size: 11px; }
 .toggle-row { display: flex; align-items: center; gap: 10px; }
 .toggle-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }

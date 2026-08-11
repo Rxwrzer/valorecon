@@ -58,6 +58,17 @@
     activeTab = tab;
   }
 
+  // Jump to Lookup pre-filled with a Riot ID (from clicking a live player's name).
+  // The nonce makes every click re-trigger, even for the same name.
+  let lookupQuery = $state("");
+  let lookupNonce = $state(0);
+  function gotoLookup(riotId: string) {
+    if (!riotId || !riotId.includes("#")) return;
+    lookupQuery = riotId;
+    lookupNonce++;
+    activeTab = "lookup";
+  }
+
   async function toggleAlwaysOnTop() {
     alwaysOnTop = !alwaysOnTop;
     try { await api.setAlwaysOnTop(alwaysOnTop); } catch {}
@@ -126,7 +137,7 @@
 
   <main>
     <div class="view" class:active={activeTab === "live"}>
-      <LiveView appState={appState} />
+      <LiveView appState={appState} onLookup={gotoLookup} />
     </div>
     <div class="view" class:active={activeTab === "profile"}>
       {#if activeTab === "profile"}
@@ -134,9 +145,7 @@
       {/if}
     </div>
     <div class="view" class:active={activeTab === "lookup"}>
-      {#if activeTab === "lookup"}
-        <LookupView />
-      {/if}
+      <LookupView initialQuery={lookupQuery} nonce={lookupNonce} />
     </div>
     <div class="view" class:active={activeTab === "settings"}>
       {#if activeTab === "settings"}
