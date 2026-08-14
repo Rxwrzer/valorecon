@@ -18,8 +18,7 @@ A lightweight native Windows app for tracking VALORANT lobbies in real time. See
 
 Grab the latest installer from [Releases](https://github.com/Rxwrzer/valorecon/releases):
 
-- **`ValoRecon_x64-setup.exe`** — recommended (installs per-user, no admin required)
-- **`ValoRecon_x64_en-US.msi`** — MSI for managed environments
+- **`ValoRecon_x64-setup.exe`** — installs per-user, no admin required. The app auto-updates from here on.
 
 ## Setup
 
