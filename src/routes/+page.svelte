@@ -3,6 +3,7 @@
   import { onMount, onDestroy } from "svelte";
   import { api, onStateUpdate, type AppState } from "$lib/api";
   import { getVersion } from "@tauri-apps/api/app";
+  import { check } from "@tauri-apps/plugin-updater";
 
   import LiveView from "$lib/views/LiveView.svelte";
   import ProfileView from "$lib/views/ProfileView.svelte";
@@ -26,6 +27,17 @@
   });
   let alwaysOnTop = $state(false);
   let appVersion = $state("");
+  let updateVersion = $state("");
+  let updating = $state(false);
+
+  async function installUpdate() {
+    if (updating) return;
+    updating = true;
+    try {
+      const u = await check();
+      await u?.downloadAndInstall();
+    } catch { updating = false; }
+  }
 
   let unlisten: (() => void) | null = null;
   let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -47,6 +59,15 @@
     } catch {}
 
     try { appVersion = await getVersion(); } catch {}
+
+    // Silently check for updates a few seconds after launch; surface a header
+    // pill if one is available (never blocks — the user installs when they want).
+    setTimeout(async () => {
+      try {
+        const u = await check();
+        if (u?.available) updateVersion = u.version;
+      } catch {}
+    }, 4000);
   });
 
   onDestroy(() => {
@@ -111,6 +132,12 @@
     </nav>
 
     <div class="header-right">
+      {#if updateVersion}
+        <button class="update-pill" onclick={installUpdate} disabled={updating}
+                title="Install update">
+          {updating ? "Updating…" : `↑ Update to v${updateVersion}`}
+        </button>
+      {/if}
       <button
         class="pin-btn {alwaysOnTop ? 'pin-active' : ''}"
         title={alwaysOnTop ? "Unpin window" : "Pin on top"}
@@ -234,6 +261,26 @@ nav button.active {
   align-items: center;
   gap: 9px;
 }
+
+.update-pill {
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel2));
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: #fff;
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 0 14px -4px var(--accent);
+  transition: background .15s;
+  animation: pillin .3s ease;
+}
+.update-pill:hover { background: color-mix(in srgb, var(--accent) 32%, var(--panel2)); }
+.update-pill:disabled { opacity: .6; cursor: default; }
+@keyframes pillin { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
 .pin-btn {
   background: none;
