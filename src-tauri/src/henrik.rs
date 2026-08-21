@@ -323,15 +323,29 @@ pub fn parse_stored_matches(data: &Value, _puuid: &str) -> (Vec<serde_json::Map<
         let ls = shots.and_then(|s| s.get("leg")).and_then(|v| v.as_i64()).unwrap_or(0);
         let damage = stats.get("damage").and_then(|d| d.get("made")).and_then(|v| v.as_f64()).unwrap_or(0.0);
 
-        // Round counts per team → total rounds + win/loss for the queried player.
-        let red = g.get("teams").and_then(|t| t.get("red")).and_then(|t| t.get("rounds_won")).and_then(|v| v.as_i64()).unwrap_or(0);
-        let blue = g.get("teams").and_then(|t| t.get("blue")).and_then(|t| t.get("rounds_won")).and_then(|v| v.as_i64()).unwrap_or(0);
+        // Round counts per team. The endpoint returns teams as integers
+        // ({"red":13,"blue":5}) OR nested ({"red":{"rounds_won":13}}) — handle both,
+        // case-insensitively, so rounds is never wrongly 0.
+        let team_rc = |name: &str| -> i64 {
+            let lo = name.to_ascii_lowercase();
+            g.get("teams").and_then(|t| t.as_object())
+                .and_then(|o| o.iter().find(|(k, _)| k.to_ascii_lowercase() == lo).map(|(_, v)| v))
+                .map(|v| v.as_i64().or_else(|| v.get("rounds_won").and_then(|x| x.as_i64())).unwrap_or(0))
+                .unwrap_or(0)
+        };
+        let red = team_rc("red");
+        let blue = team_rc("blue");
         let team = stats.get("team").and_then(|v| v.as_str()).unwrap_or("").to_lowercase();
         let won = match team.as_str() { "red" => red > blue, "blue" => blue > red, _ => false };
 
         // Real per-game season UUID — matches content's current_season for act filtering.
         let season = meta.get("season").and_then(|s| s.get("id")).and_then(|v| v.as_str()).unwrap_or("").to_string();
-        let agent = stats.get("character").and_then(|c| c.get("name")).and_then(|v| v.as_str()).unwrap_or("").to_string();
+        // Store the agent UUID (not the name): the profile history resolves it via
+        // content.agent(id), which keys on UUID. Storing the name left Henrik-pulled
+        // games unable to show their agent.
+        let agent = stats.get("character").and_then(|c| c.get("id")).and_then(|v| v.as_str())
+            .or_else(|| stats.get("character").and_then(|c| c.get("name")).and_then(|v| v.as_str()))
+            .unwrap_or("").to_string();
         let started_at = meta.get("started_at").and_then(|v| v.as_str()).unwrap_or("").to_string();
 
         let mut row = serde_json::Map::new();

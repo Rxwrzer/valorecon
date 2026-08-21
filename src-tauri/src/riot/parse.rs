@@ -218,10 +218,14 @@ pub fn extract_all_match_stats(data: &Value) -> serde_json::Map<String, Value> {
     // stats.roundsPlayed which only counts rounds the player was alive (~half).
     // Tuple: (damage, headshots, bodyshots, legshots, combat_score)
     let mut shot_agg: std::collections::HashMap<String, (f64, i64, i64, i64, f64)> = std::collections::HashMap::new();
-    // Store rounds=0 so aggregate_stats always uses the n*24 fallback.
-    // All Riot local API sources (roundResults.len, teams.roundsPlayed) return
-    // wrong values (1 instead of the real round count), so we don't use them.
-    let total_match_rounds = 0.0_f64;
+    // total_match_rounds = number of rounds actually played, from the length of
+    // roundResults. This is reliable for COMPLETED matches (which is all this
+    // function ever parses: recent match-details + deep-pull games). Guard against
+    // a truncated/partial payload with a small floor — a real comp game is never
+    // under ~5 rounds; anything smaller stores 0 and is skipped by aggregate_stats.
+    let round_count = data.get("roundResults").and_then(|r| r.as_array())
+        .map(|r| r.len()).unwrap_or(0);
+    let total_match_rounds = if round_count >= 5 { round_count as f64 } else { 0.0 };
     if let Some(rounds) = data.get("roundResults").and_then(|r| r.as_array()) {
         for round in rounds {
             let pstats = match round.get("playerStats").and_then(|p| p.as_array()) {
@@ -299,19 +303,38 @@ pub fn aggregate_stats(rows: &[Option<serde_json::Value>]) -> Option<PlayerStats
     let kills: f64 = valid.iter().map(|r| r["kills"].as_f64().unwrap_or(0.0)).sum();
     let deaths: f64 = valid.iter().map(|r| r["deaths"].as_f64().unwrap_or(0.0)).sum();
     let assists: f64 = valid.iter().map(|r| r["assists"].as_f64().unwrap_or(0.0)).sum();
-    let score: f64 = valid.iter().map(|r| r["score"].as_f64().unwrap_or(0.0)).sum();
-    let damage: f64 = valid.iter().map(|r| r["damage"].as_f64().unwrap_or(0.0)).sum();
     let hs: f64 = valid.iter().map(|r| r["headshots"].as_f64().unwrap_or(0.0)).sum();
     let bs: f64 = valid.iter().map(|r| r["bodyshots"].as_f64().unwrap_or(0.0)).sum();
     let ls: f64 = valid.iter().map(|r| r["legshots"].as_f64().unwrap_or(0.0)).sum();
     let wins: f64 = valid.iter().map(|r| if r["won"].as_bool().unwrap_or(false) { 1.0 } else { 0.0 }).sum();
-    // Sum actual rounds played; fall back to ~24/game if the field is missing.
-    let rounds: f64 = valid.iter().map(|r| r["rounds"].as_f64().unwrap_or(0.0)).sum();
-    let total_rounds = if rounds > 0.0 { rounds } else { n * 24.0 };
+
+    // ACS/ADR are per-round rates, so they may ONLY sum score/damage over games
+    // whose round count is known. A game stored with rounds==0 (unreliable source)
+    // contributes score but no rounds — including it inflates the rate. Sum score,
+    // damage and rounds together over the SAME rounds>0 subset so they stay matched.
+    let mut rr_score = 0.0;
+    let mut rr_damage = 0.0;
+    let mut rr_rounds = 0.0;
+    for r in &valid {
+        let rd = r["rounds"].as_f64().unwrap_or(0.0);
+        if rd > 0.0 {
+            rr_rounds += rd;
+            rr_score += r["score"].as_f64().unwrap_or(0.0);
+            rr_damage += r["damage"].as_f64().unwrap_or(0.0);
+        }
+    }
+    // Fallback only when NO game has a round count: approximate ~24 rounds/game
+    // over all games (keeps a sensible number rather than dividing by zero).
+    let (acs, adr) = if rr_rounds > 0.0 {
+        (rr_score / rr_rounds, rr_damage / rr_rounds)
+    } else {
+        let score: f64 = valid.iter().map(|r| r["score"].as_f64().unwrap_or(0.0)).sum();
+        let damage: f64 = valid.iter().map(|r| r["damage"].as_f64().unwrap_or(0.0)).sum();
+        let tr = n * 24.0;
+        (score / tr, damage / tr)
+    };
 
     let kda = if deaths > 0.0 { (kills + assists) / deaths } else { kills + assists };
-    let acs = score / total_rounds;
-    let adr = damage / total_rounds;
     let total_shots = hs + bs + ls;
     let hs_pct = if total_shots > 0.0 { (hs / total_shots * 100.0).round() as i32 } else { 0 };
     let winrate = ((wins / n) * 100.0).round() as i32;
@@ -441,6 +464,26 @@ mod tests {
         let s = aggregate_stats(&rows).expect("should have stats");
         assert!(s.kda.unwrap() > 0.0);
         assert!(s.acs.unwrap() > 0);
+        assert_eq!(s.winrate, Some(50));
+    }
+
+    #[test]
+    fn aggregate_stats_excludes_zero_round_games_from_acs() {
+        let rows = vec![
+            // Real game: 3000 combat score over 20 rounds = 150 ACS.
+            Some(json!({ "kills": 15.0, "deaths": 15.0, "assists": 5.0,
+                         "score": 3000.0, "damage": 2800.0, "rounds": 20.0,
+                         "headshots": 5, "bodyshots": 20, "legshots": 2, "won": true })),
+            // Garbage game: rounds==0 with a big score — must NOT inflate ACS/ADR.
+            Some(json!({ "kills": 17.0, "deaths": 10.0, "assists": 4.0,
+                         "score": 4298.0, "damage": 3500.0, "rounds": 0.0,
+                         "headshots": 6, "bodyshots": 18, "legshots": 0, "won": false })),
+        ];
+        let s = aggregate_stats(&rows).expect("stats");
+        // ACS = 3000/20 = 150 (only the rounds>0 game), NOT (3000+4298)/20 = 364.9.
+        assert_eq!(s.acs, Some(150));
+        assert_eq!(s.adr, Some(140)); // 2800/20
+        // KDA / winrate still use both games.
         assert_eq!(s.winrate, Some(50));
     }
 }
